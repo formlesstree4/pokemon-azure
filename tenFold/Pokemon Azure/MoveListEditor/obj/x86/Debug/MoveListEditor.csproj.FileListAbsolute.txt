@@ -1,0 +1,4 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\MoveListEditor\obj\x86\Debug\MoveListEditor.frm_AddMove.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\MoveListEditor\obj\x86\Debug\MoveListEditor.frm_Main.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\MoveListEditor\obj\x86\Debug\MoveListEditor.Properties.Resources.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\MoveListEditor\obj\x86\Debug\MoveListEditor.csproj.GenerateResource.Cache

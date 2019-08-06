@@ -1,0 +1,11 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\bin\Debug\Database\DB.sdf
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\bin\Debug\Mercury.dll.config
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\bin\Debug\Mercury.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\bin\Debug\Mercury.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\bin\Debug\Phoenix.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\bin\Debug\Structures.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\bin\Debug\Phoenix.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\bin\Debug\Structures.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\obj\Debug\Mercury.csprojResolveAssemblyReference.cache
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\obj\Debug\Mercury.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mercury\Mercury\obj\Debug\Mercury.pdb

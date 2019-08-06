@@ -1,0 +1,105 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using PokeEngine.Screens;
+using PokeEngine.Map;
+
+namespace LiveMapMaker.Tools
+{
+    public static class TileTool
+    {
+        public static Game1 game;    //where the tool is applied to
+        public static Editor editor; //stores the settings for the tool to be used
+        
+
+        public static void InitializeTool(Game1 inGame, Editor inEditor)
+        {
+            game = inGame;
+            editor = inEditor;
+        }
+
+        public static void ApplyImage()
+        {
+            int x = game.selectedX;
+            int y = game.selectedY;
+
+            //apply the changes to the properties of the tile
+            game.world.currentArea.tile[x, y].setAccessible(editor.northBox.Checked, editor.eastBox.Checked, editor.southBox.Checked, editor.westBox.Checked);
+            game.world.currentArea.tile[x, y].setRamp(editor.rampBox.Checked);
+            game.world.currentArea.tile[x, y].setJumpable(editor.jumpBox.Checked);
+            game.world.currentArea.tile[x, y].setRandomEncounter(editor.randomEncounterBox.Checked);
+            game.world.currentArea.tile[x, y].setWater(editor.waterBox.Checked);
+
+            //check if the tile is already of the selected type
+            if (game.world.currentArea.tile[x, y].tileType != (String)editor.pbox_TilePreview.Tag
+                && x != -1 && y != -1)
+            {
+                //if not then change it
+                game.world.currentArea.tile[x, y].tileType = (String)editor.pbox_TilePreview.Tag;
+                game.world.changeZone(game.world.currentArea);
+                GameDraw.makeAdjBuffers(game.world);
+            }
+        }
+
+        public static void ApplySettings()
+        {
+            int x = game.selectedX;
+            int y = game.selectedY;
+
+            //apply the changes to the properties of the tile
+            if (editor.controlPropertiesBox.Checked == true)
+            {
+                game.world.currentArea.tile[x, y].setAccessible(editor.controlNorthBox.Checked, editor.controlEastBox.Checked, editor.controlSouthBox.Checked, editor.controlWestBox.Checked);
+                game.world.currentArea.tile[x, y].setRamp(editor.controlBikeBox.Checked);
+                game.world.currentArea.tile[x, y].setJumpable(editor.controlJumpBox.Checked);
+                game.world.currentArea.tile[x, y].setRandomEncounter(editor.controlREBox.Checked);
+                game.world.currentArea.tile[x, y].setWater(editor.controlWaterBox.Checked);
+            }
+
+            //apply a script if it is enabled and there is stuff in the box
+            if (editor.tileScriptBox.Checked && !String.IsNullOrEmpty(editor.tileScriptTextBox.Text))
+            {
+                game.world.currentArea.tile[x, y].eventScript = editor.tileScriptTextBox.Text;
+            }
+                //otherwise remove the script
+            else
+            {
+                game.world.currentArea.tile[x, y].eventScript = null;
+            }
+        }
+
+        internal static void SetAll(String tileType)
+        {
+            //shift undo history down by one
+            for (int i = editor.historySize - 1; i > 0; i--)
+            {
+                editor.zoneHistory[i] = editor.zoneHistory[i - 1];
+            }
+            //save current state as last change
+
+            for (int x = 0; x < game.world.currentArea.mapWidth; x++)
+            {
+                for (int y = 0; y < game.world.currentArea.mapHeight; y++)
+                {
+                    //apply properties
+                    game.world.currentArea.tile[x, y].setAccessible(editor.northBox.Checked, editor.eastBox.Checked, editor.southBox.Checked, editor.westBox.Checked);
+                    game.world.currentArea.tile[x, y].setRamp(editor.rampBox.Checked);
+                    game.world.currentArea.tile[x, y].setJumpable(editor.jumpBox.Checked);
+                    game.world.currentArea.tile[x, y].setRandomEncounter(editor.jumpBox.Checked);
+                    game.world.currentArea.tile[x, y].setWater(editor.waterBox.Checked);
+
+                    //apply tile image
+                    game.world.currentArea.tile[x, y].tileType = tileType;
+                    game.world.changeZone(game.world.currentArea);                    
+                }
+            }
+
+            //save current zone for undo history
+            editor.zoneHistory[0] = new Zone(game.world.currentArea);
+
+            //then update buffers all in one fell swoop
+            GameDraw.makeAdjBuffers(game.world);
+        }
+    }
+}

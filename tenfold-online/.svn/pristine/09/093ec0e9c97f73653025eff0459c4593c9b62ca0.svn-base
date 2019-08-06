@@ -1,0 +1,413 @@
+﻿using System;
+using Mercury.Database.DBDataSetTableAdapters;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Mercury.Database
+{
+
+    static class Buffer
+    {
+
+        public enum Request
+        {
+            OwnerHasOriginal,
+            OwnerHasNew,
+            OwnerHasNone
+        }
+
+        private static UsersTableAdapter _userTable;
+        private static PokemonTableAdapter _pkmnTable;
+        private static RequirementsTableAdapter _requTable;
+
+        private static bool _ptDisposed;
+        private static bool _utDisposed;
+        private static bool _rqDisposed;
+
+        /// <summary>
+        /// Initializes the Buffer Class
+        /// </summary>
+        public static void Initialize()
+        {
+            _utDisposed = false;
+            _ptDisposed = false;
+            _rqDisposed = false;
+            _userTable = new UsersTableAdapter();
+            _pkmnTable = new PokemonTableAdapter();
+            _requTable = new RequirementsTableAdapter();
+            _userTable.Disposed += (sender, args) => _utDisposed = true;
+            _pkmnTable.Disposed += (sender, args) => _ptDisposed = true;
+            _requTable.Disposed += (sender, args) => _rqDisposed = true;
+        }
+
+        #region User
+
+        /// <summary>
+        /// This routine determines if a login is valid.
+        /// </summary>
+        /// <param name="id">The unique ID for logging in.</param>
+        /// <param name="pass">The password for logging in.</param>
+        /// <returns>A boolean value that determines if the login was valid.</returns>
+        public static bool Login(Guid id, string pass)
+        {
+            return !_utDisposed && _userTable.GetByIDPass(id, pass).Rows.Count.Equals(1);
+        }
+
+        /// <summary>
+        /// This routine will insert a new user into the table. 
+        /// This routine will call Exists() internally to make sure that there
+        /// are no duplicate entries.
+        /// </summary>
+        /// <param name="id">The unique ID to insert.</param>
+        /// <param name="pass">The password to insert.</param>
+        /// <returns>A boolean value that determines if the registration was successful.</returns>
+        public static bool Register(Guid id, string pass)
+        {
+            if (!Exists(id) && !_utDisposed)
+            { 
+                var result = _userTable.Insert(id, pass);
+                return result == 1;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// This routine determines if the ID is already registered in the system.
+        /// </summary>
+        /// <param name="id">The unique ID to register.</param>
+        /// <returns>A boolean value.</returns>
+        public static bool Exists(Guid id)
+        {
+            return !_utDisposed && _userTable.GetByID(id).Rows.Count > 0;
+        }
+
+        #endregion
+
+        #region Pokemon
+
+        private static bool InsertPokemon(Guid uid, short nationalId, byte level, byte gender, byte[] chunk, Guid ownerId)
+        {
+            if (PokemonExists(uid)) return false;
+            _pkmnTable.Insert(uid, nationalId, level, gender, chunk, ownerId, false);
+            return true;
+        }
+
+        /// <summary>
+        /// Adds a new Pokemon to the database.
+        /// </summary>
+        /// <param name="pkmn">The Pokemon class to insert.</param>
+        /// <param name="owner">The owner of the Pokemon.</param>
+        /// <returns></returns>
+        public static bool InsertPokemon(Classes.Pokemon pkmn, Guid owner)
+        {
+            if (PokemonExists(pkmn.ID)) return false;
+            InsertPokemon(pkmn.ID, pkmn.NationalID, pkmn.Level, (byte)(int)(pkmn.Gender), pkmn.Blob, owner);
+            _requTable.Insert(pkmn.ID, pkmn.Requirements.MinLevel, pkmn.Requirements.MaxLevel, pkmn.Requirements.NationalID, (byte)(int)pkmn.Requirements.Gender);
+            return true;
+        }
+
+        /// <summary>
+        /// This checks to see if the pokemon with the given unique ID exists.
+        /// </summary>
+        /// <param name="uid">The unique ID of the pokemon.</param>
+        /// <returns></returns>
+        public static bool PokemonExists(Guid uid)
+        {
+            return !_ptDisposed && _pkmnTable.GetByID(uid).Rows.Count > 0;
+        }
+
+        /// <summary>
+        /// This checks to see if a unique pokemon has been traded already.
+        /// </summary>
+        /// <param name="uid">The unique id of the pokemon.</param>
+        /// <returns></returns>
+        public static bool PokemonHasTraded(Guid uid)
+        {
+            return !_ptDisposed && PokemonExists(uid) && ((DBDataSet.PokemonRow)_pkmnTable.GetByID(uid).Rows[0]).Traded;
+        }
+
+        /// <summary>
+        /// Checks to see if the owner has a pokemon in the database.
+        /// </summary>
+        /// <param name="ownerId">The owner id of the pokemon.</param>
+        /// <returns></returns>
+        public static Request OwnerRequest(Guid ownerId)
+        {
+            var data = _pkmnTable.GetByOwner(ownerId);
+            if (data.Rows.Count.Equals(0)) return Request.OwnerHasNone;
+            var pkmnRow = (DBDataSet.PokemonRow)data.Rows[0];
+            if (pkmnRow.Traded) return Request.OwnerHasNew;
+            return Request.OwnerHasOriginal;
+        }
+
+        /// <summary>
+        /// Performs a trade of two pokemon.
+        /// </summary>
+        /// <param name="oldPokemon">The Pokemon on the GTS.</param>
+        /// <param name="newPokemon">The Pokemon coming onto the GTS.</param>
+        /// <param name="oldOwner">The owner of <paramref name="oldPokemon"/>.</param>
+        /// <param name="newOwner">The owner of <paramref name="newPokemon"/>.</param>
+        /// <returns></returns>
+        public static bool PerformTrade(Guid oldPokemon, Guid newPokemon, Guid newOwner)
+        {
+            // if (!PokemonExists(oldPokemon) || !PokemonExists(newPokemon)) return false;
+
+            // Old Pokemon goes to new owner
+            // New Pokemon goes to old owner
+
+            // Let's get the oldOwner GUID real fast...
+            var oldOwnerRow = ((DBDataSet.PokemonRow)_pkmnTable.GetByID(oldPokemon).Rows[0]);
+            var oldOwner = oldOwnerRow.Owner;
+
+            // Update the old Pokemon, give it to the new owner.
+            _pkmnTable.UpdatePokemon(newOwner, true, oldPokemon);
+
+            // Update the new pokemon, give it to the old owner.
+            _pkmnTable.UpdatePokemon(oldOwner, true, newPokemon);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Removes a Pokemon from the database.
+        /// </summary>
+        /// <param name="uid">The unique ID of the pokemon.</param>
+        /// <returns></returns>
+        public static bool RemovePokemon(Guid uid)
+        {
+
+            if (!PokemonExists(uid)) return false;
+            _pkmnTable.Delete(uid);
+            return true;
+
+        }
+
+        /// <summary>
+        /// returns a pokemon class.
+        /// </summary>
+        /// <param name="uid">the unique id of the pokemon.</param>
+        /// <returns></returns>
+        public static Classes.Pokemon GetPokemon(Guid uid)
+        {
+            if (!PokemonExists(uid)) throw new ArgumentException("Hey, bad!");
+
+            var table = (DBDataSet.PokemonRow) _pkmnTable.GetByID(uid).Rows[0];
+            var reqTable = (DBDataSet.RequirementsRow)_requTable.Get(uid).Rows[0];
+
+            var requirements = new Classes.Requirements
+            {
+                Gender = (Classes.Gender)reqTable.Gender,
+                MinLevel = reqTable.MinLevel,
+                MaxLevel = reqTable.MaxLevel,
+                NationalID = reqTable.NationalID
+            };
+
+            return new Classes.Pokemon()
+            {
+                Blob = table.Chunk,
+                Gender = (Classes.Gender)table.Gender,
+                ID = table.UniqueID,
+                NationalID = table.NationalID,
+                Level = table.Level,
+                Requirements = requirements
+            };
+        }
+
+        /// <summary>
+        /// Returns a pokemon based on the owner.
+        /// </summary>
+        /// <param name="ownerID">the id of the owner</param>
+        /// <returns></returns>
+        public static Classes.Pokemon GetPokemonByOwner(Guid ownerID)
+        {
+            var req = OwnerRequest(ownerID);
+            // perform a quick check for the owner
+            if (req == Request.OwnerHasNew || req == Request.OwnerHasOriginal)
+            {
+                var data = _pkmnTable.GetByOwner(ownerID);
+                var pkmnRow = (DBDataSet.PokemonRow)data.Rows[0];
+                return GetPokemon(pkmnRow.UniqueID);
+            }
+            throw new ArgumentException("bad id");
+
+        }
+
+        /// <summary>
+        /// Performs a search.
+        /// </summary>
+        /// <param name="request">The search parameters to follow.</param>
+        /// <param name="ownerID">The current ID of the person searching.</param>
+        /// <returns>A GUID which represents the search data to go look up in the SearchTracker class.</returns>
+        public static Guid Search(Classes.SearchRequest request, Guid ownerID)
+        {
+
+            var sr = _pkmnTable.GetSearch(request.NationalID, false);
+            var resultList = new List<Classes.SearchPkm>();
+            var searchID = Guid.NewGuid();
+
+            foreach (var rawRow in sr.Rows)
+            {
+                var pkmnRow = (DBDataSet.PokemonRow)rawRow;
+
+                // Check to see if this pokemon has been traded, if so, continue on.
+                if (pkmnRow.Traded) continue;
+                if (pkmnRow.Owner == ownerID) continue;
+
+                if ((pkmnRow.Level <= request.MaxLevel) && 
+                    (pkmnRow.Level >= request.MinLevel))
+                {
+
+                    var addPokemon = false;
+                    // addPokemon = (Classes.Gender)pkmnRow.Gender != Classes.Gender.None ? request.Gender == Classes.Gender.Any ? true : request.Gender == (Classes.Gender)pkmnRow.Gender : true;
+
+                    // See if it's genderless
+                    if ((Classes.Gender)pkmnRow.Gender != Classes.Gender.None)
+                    {
+                        // It's not genderless.
+                        // Check to see if the gender is acceptable.
+                        if (request.Gender == Classes.Gender.Any)
+                            addPokemon = true; // any gender, no cares.
+                        else
+                        {
+                            // only add if the request matches the row.
+                            addPokemon = (Classes.Gender)pkmnRow.Gender == request.Gender;
+                        }
+
+                    }
+                    else
+                    {
+                        // Genderless, query doesn't matter.
+                        addPokemon = true;
+                    }
+
+                    // Add only if true.
+                    if (addPokemon)
+                    {
+
+                        // I also need to get the requirements!!!
+                        var requirementsRow = (Database.DBDataSet.RequirementsRow)Database.Buffer._requTable.Get(pkmnRow.UniqueID).Rows[0];
+                        var requirements = new Classes.Requirements();
+
+                        requirements.NationalID = requirementsRow.NationalID;
+                        requirements.MinLevel = requirementsRow.MinLevel;
+                        requirements.MaxLevel = requirementsRow.MaxLevel;
+                        requirements.Gender = (Classes.Gender)requirementsRow.Gender;
+
+                        resultList.Add(new Classes.SearchPkm
+                        {
+                            Gender = (Classes.Gender)pkmnRow.Gender,
+                            ID = pkmnRow.UniqueID,
+                            Level = pkmnRow.Level,
+                            NationalID = pkmnRow.NationalID,
+                            Requirements = requirements
+                        });
+                    }
+                }
+
+            }
+            
+            // Query done, insert the results into the search manager
+            SearchTracker.Add(searchID, resultList);
+            
+            // and return this
+            return searchID;
+            
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Disposes of the buffer class.
+        /// </summary>
+        public static void Dispose()
+        {
+            _userTable.Dispose();
+            _pkmnTable.Dispose();
+            _requTable.Dispose();
+        }
+
+        /// <summary>
+        /// Returns if the Buffer class has been disposed; if it has been disposed, it needs to be reinitialized.
+        /// </summary>
+        public static bool Disposed
+        {
+            get
+            {
+                return _ptDisposed || _utDisposed || _rqDisposed;
+            }
+        }
+
+    }
+
+    static class SearchTracker
+    {
+
+        private static Dictionary<Guid, List<Classes.SearchPkm>> searches;
+
+        public static void Initialize()
+        {
+            searches = new Dictionary<Guid, List<Classes.SearchPkm>>();
+        }
+
+        public static void Add(Guid searchid, List<Classes.SearchPkm> pokemon)
+        {
+            if (!searches.ContainsKey(searchid)) searches.Add(searchid, pokemon);
+        }
+        public static List<Classes.SearchPkm> GetResults(Guid searchID)
+        {
+
+            // We're only going to grab as many as the 
+            // max results will allow us to get.
+
+            // Check to make sure the search id exists, if it doesn't, spit
+            // back out a blank list.
+            if (!searches.ContainsKey(searchID)) return new List<Classes.SearchPkm>();
+
+            // now that we have done that, grab the current list.
+            var currentList = searches[searchID];
+
+            // Check
+            if (currentList.Count > Constants.MaxResults)
+            {
+
+                // Define a new array
+                var pkmnArr = new Classes.SearchPkm[5];
+                
+                // we just want the first 5
+                currentList.CopyTo(0, pkmnArr, 0, 5);
+
+                // Remove the rest.
+                currentList.RemoveRange(0, 5);
+
+                // Check
+                if (currentList.Count.Equals(0))
+                {
+                    searches.Remove(searchID);
+                }
+                else
+                {
+                    searches[searchID] = currentList;
+                }
+
+                // Give back
+                // return pkmnArr.ToList();
+                return new List<Classes.SearchPkm>(pkmnArr);
+
+            }
+            else
+            {
+
+                // remove the id, don't care
+                searches.Remove(searchID);
+
+                // Just spit it back
+                return currentList;
+
+            }
+
+        }
+        
+    }
+
+}

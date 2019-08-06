@@ -1,0 +1,58 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
+
+namespace PokeEngine.Screens
+{
+    class Screen
+    {
+        protected GraphicsDeviceManager graphics;
+        protected ContentManager content;
+        protected SpriteFont font;
+
+        /// <summary>
+        /// IsAlive:    Checked for updating; 
+        /// IsActive:   Checked for inputting; 
+        /// IsVisible:  Checked for drawing; 
+        /// </summary>
+        public bool IsAlive, IsActive, IsVisible;
+
+        public Screen(GraphicsDeviceManager g, ContentManager c, SpriteFont f)
+        {
+            graphics = g;
+            content = c;
+            font = f;
+
+            IsAlive = true;
+            IsActive = false;
+            IsVisible = false;
+        }
+
+        public void HandleInput(GamePadState gamePadState, KeyboardState keyState, MouseState mouseState)
+        {
+
+        }
+
+        public void Update(GameTime gameTime)
+        {
+
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+
+        }
+
+        public void Close()
+        {
+            IsAlive = false;
+            IsActive = false;
+            IsVisible = false;
+        }
+    }
+}

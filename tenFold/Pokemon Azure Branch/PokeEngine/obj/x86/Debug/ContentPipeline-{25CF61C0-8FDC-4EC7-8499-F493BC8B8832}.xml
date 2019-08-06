@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:Pipeline="Microsoft.Xna.Framework.Content.Pipeline">
+  <Asset Type="Pipeline:BuildItemCollection">
+    <Item>
+      <Source>aansa.spritefont</Source>
+      <Name>aansa</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\bin\Content\aansa.xnb</Output>
+      <Time>2012-05-03T08:55:03.8130821-05:00</Time>
+    </Item>
+    <Item>
+      <Source>font.spritefont</Source>
+      <Name>font</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\bin\Content\font.xnb</Output>
+      <Time>2012-05-03T08:55:04.5421238-05:00</Time>
+    </Item>
+    <Item>
+      <Source>smallFont.spritefont</Source>
+      <Name>smallFont</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\bin\Content\smallFont.xnb</Output>
+      <Time>2012-05-03T08:55:05.3371693-05:00</Time>
+    </Item>
+    <Item>
+      <Source>Effect.fx</Source>
+      <Name>Effect</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\bin\Content\Effect.xnb</Output>
+      <Time>2012-05-03T08:55:05.123157-05:00</Time>
+    </Item>
+    <Item>
+      <Source>debug_question_tile.png</Source>
+      <Name>debug_question_tile</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\bin\Content\debug_question_tile.xnb</Output>
+      <Time>2012-05-03T08:55:05.3411695-05:00</Time>
+    </Item>
+    <BuildSuccessful>true</BuildSuccessful>
+    <Settings>
+      <ContentProjectGUID>{25CF61C0-8FDC-4EC7-8499-F493BC8B8832}</ContentProjectGUID>
+      <TargetPlatform>Windows</TargetPlatform>
+      <TargetProfile>Reach</TargetProfile>
+      <BuildConfiguration>Debug</BuildConfiguration>
+      <CompressContent>false</CompressContent>
+      <RootDirectory>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\PokeEngineContent\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\PokeEngine\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\PokeEngine\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\bin\Content\</OutputDirectory>
+    </Settings>
+    <Assemblies>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.VideoImporters.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
+        <Value>2012-05-03T08:43:02.3078143-05:00</Value>
+      </Assembly>
+    </Assemblies>
+  </Asset>
+</XnaContent>

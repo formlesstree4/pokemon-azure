@@ -1,0 +1,5 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Phoenix\bin\Debug\Phoenix.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Phoenix\bin\Debug\Phoenix.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Phoenix\obj\Debug\Phoenix.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Phoenix\obj\Debug\Phoenix.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Phoenix\obj\Debug\Phoenix.csprojResolveAssemblyReference.cache

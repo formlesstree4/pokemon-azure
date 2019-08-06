@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+
+namespace PokeEngine.Screens
+{
+    public static class NameBox
+    {
+
+        public static GraphicsDeviceManager graphics;
+        public static SpriteBatch spriteBatch;
+        public static ContentManager content;
+        public static SpriteFont font;
+
+        public static bool IsActive;
+        public static bool IsVisible;
+
+        public static void Initialize(GraphicsDeviceManager g, SpriteBatch s, ContentManager c, SpriteFont f)
+        {
+            graphics = g;
+            spriteBatch = s;
+            content = c;
+            font = f;
+
+            IsActive = false;
+            IsVisible = false;
+        }
+
+        public static void Update()
+        {
+
+        }
+
+        public static void Draw()
+        {
+
+        }
+
+        public static void HandleKeys()
+        {
+
+        }
+
+    }
+}

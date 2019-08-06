@@ -1,0 +1,512 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
+using System.Linq;
+using System.Windows.Forms;
+using Mercury.Classes;
+using MercuryClientTestProgram.Properties;
+using Phoenix.Client;
+
+namespace MercuryClientTestProgram
+{
+    public partial class FrmMain : Form
+    {
+
+        private List<string> _pokemonList = new List<string>();
+        private List<string> _genderlessList = new List<string>();
+        private readonly Client _client = new Client();
+
+        public FrmMain()
+        {
+            InitializeComponent();
+        }
+
+        /// <summary>
+        /// Returns the sprite image of a pokemon.
+        /// </summary>
+        /// <param name="id">The national ID of the pokemon.</param>
+        /// <returns></returns>
+        private static Bitmap GetPokemon(int id)
+        {
+            return (Bitmap)Resources.ResourceManager.GetObject(string.Format("_{0}", id.ToString(CultureInfo.InvariantCulture)),
+                                                                  Resources.Culture);
+        }
+
+        /// <summary>
+        /// Enable or disable a control.
+        /// </summary>
+        /// <param name="ctrl">The control to enable/disable.</param>
+        /// <param name="enabled">The value.</param>
+        private static void EnableDisable(Control ctrl, bool enabled)
+        {
+            if (ctrl.InvokeRequired)
+            {
+                ctrl.Invoke(new Action(delegate { ctrl.Enabled = enabled; }));
+            }
+            else
+            {
+                ctrl.Enabled = enabled;
+            }
+        }
+
+        /// <summary>
+        /// Adds logging information to the listbox.
+        /// </summary>
+        /// <param name="data">The information to add.</param>
+        private void LogDataToList(string data)
+        {
+            if (lbLog.InvokeRequired)
+            {
+                lbLog.Invoke(new Action(delegate 
+                    { 
+                        lbLog.Items.Add(data);
+                        lbLog.SelectedIndex = lbLog.Items.Count - 1;
+                    }));
+            }
+            else
+            {
+                lbLog.Items.Add(data);
+                lbLog.SelectedIndex = lbLog.Items.Count - 1;
+            }
+        }
+        
+        private void FrmMainLoad(object sender, EventArgs e)
+        {
+            
+            _pokemonList = Resources.pokemon.Split(Convert.ToChar("\n")).Select(p => p.Trim(Convert.ToChar("\r"))).ToList();
+            _genderlessList = Resources.genderless.Split(Convert.ToChar("\n")).Select(p => p.Trim(Convert.ToChar("\r"))).ToList();
+
+            
+// ReSharper disable CoVariantArrayConversion
+            cbSearchPokemon.Items.AddRange(_pokemonList.ToArray());
+            cbUploadPokemon.Items.AddRange(_pokemonList.ToArray());
+            cbRequirementsPokemon.Items.AddRange(_pokemonList.ToArray());
+// ReSharper restore CoVariantArrayConversion
+
+            cbSearchPokemon.SelectedIndex = 0;
+            cbUploadPokemon.SelectedIndex = 0;
+            cbRequirementsPokemon.SelectedIndex = 0;
+
+            cbRequirementsGender.SelectedIndex = 0;
+            cbSearchGender.SelectedIndex = 0;
+            cbUploadGender.SelectedIndex = 0;
+
+            _client.ConnectionEstablished += ClientConnectionEstablished;
+            _client.DataReceived += ClientDataReceived;
+            _client.Disconnected += ClientDisconnected;
+            _client.Exception += ClientException;
+
+            if (Settings.Default.Uid.Equals(new Guid()))
+            {
+                Settings.Default.Uid = Guid.NewGuid();
+                Settings.Default.Save();
+            }
+
+            tbUid.Text = Settings.Default.Uid.ToString();
+
+        }
+
+        #region Client
+
+        private void ClientException(object sender, Phoenix.Client.EventArgs.PhoenixClientExceptionEventArgs e)
+        {
+
+            // Let's go ahead and lock everything.
+            EnableDisable(btnConnect, true);
+            EnableDisable(btnDisconnect, false);
+            EnableDisable(gbUpload, false);
+            EnableDisable(gbSearch, false);
+
+            LogDataToList(@"The client has crashed out with the following information:");
+            LogDataToList(e.Exception.ToString());
+
+        }
+
+        private void ClientDisconnected(object sender, EventArgs e)
+        {
+
+            // Let's go ahead and lock everything.
+            EnableDisable(btnConnect, true);
+            EnableDisable(btnDisconnect, false);
+            EnableDisable(gbUpload, false);
+            EnableDisable(gbSearch, false);
+
+            LogDataToList(@"Connection to the GTS has ended");
+
+        }
+
+        private void ClientDataReceived(object sender, Phoenix.Client.EventArgs.PhoenixClientDataReceievedEventArgs e)
+        {
+
+            switch (e.Data[0])
+            {
+
+                case Mercury.CONSTANTS.SearchResultsHeader:
+
+                    // Build our search results.
+                    var results = new SearchResults();
+                    results.Initialize(e.Data);
+
+                    // Store our result ID
+                    lvSearchResults.Invoke(new Action(delegate { lvSearchResults.Tag = results.ID; }));
+                    LogDataToList(string.Format("We have received {0} search results!", results.Pokemon.Count()));
+
+                    // Begin looping
+                    foreach (var pokemon in results.Pokemon)
+                    {
+                        
+                        // Create our new listviewitem
+                        var lvi = new ListViewItem {Text = _pokemonList[pokemon.NationalID - 1]};
+
+                        // now add some subitems.
+                        lvi.SubItems.Add(new ListViewItem.ListViewSubItem { Text = pokemon.Level.ToString(CultureInfo.InvariantCulture) });
+                        lvi.SubItems.Add(new ListViewItem.ListViewSubItem { Text = pokemon.Gender.ToString() });
+
+                        // All finished. Set the tag and be done.
+                        lvi.Tag = pokemon;
+
+                        // Set it to the ListView.
+                        lvSearchResults.Invoke(new Action(() => lvSearchResults.Items.Add(lvi)));
+
+                    }
+
+                    break;
+                case Mercury.CONSTANTS.UploadHeader:
+
+                    // We have received a Pokemon! Just write it out to the log.
+                    // Build it out.
+                    var upload = new Upload();
+                    upload.Initialize(e.Data);
+                    var pkmn = upload.Pokemon;
+
+                    // Write log.
+                    LogDataToList(@"We have received a Pokemon!");
+                    LogDataToList(string.Format("Pokemon: {0}", _pokemonList[pkmn.NationalID - 1]));
+                    LogDataToList(string.Format("Level: {0}", pkmn.Level));
+                    LogDataToList(string.Format("Gender: {0}", pkmn.Gender));
+
+                    break;
+                case Mercury.CONSTANTS.ResponseHeader:
+
+                    // Build our new Response Structure:
+                    var response = new Response();
+                    response.Initialize(e.Data);
+
+                    // Determine what our response was.
+                    switch (response.Resp)
+                    {
+                        case Responses.NoPokemon:
+                            LogDataToList(@"You have no Pokemon waiting in the GTS.");
+                            break;
+                        case Responses.OldPokemon:
+                            LogDataToList(@"Your original Pokemon is still in the GTS.");
+                            break;
+                        case Responses.NewPokemon:
+                            LogDataToList("Your Pokemon was traded! The results of the trade await. Press the \"Receive\" button to get your new Pokemon!");
+                            break;
+                        case Responses.LoginGood:
+
+                            // Our login was good!
+                            LogDataToList(@"The login information was accepted!");
+
+                            // Send a check the server.
+                            _client.Send(new Request { ClientRequest = Requests.Check }.ToByteArray());
+
+                            // Log
+                            LogDataToList(@"Checking Status on Mercury...please wait!");
+
+                            // Let's go ahead and unlock everything.
+                            EnableDisable(btnConnect, false);
+                            EnableDisable(btnDisconnect, true);
+                            EnableDisable(gbUpload, true);
+                            EnableDisable(gbSearch, true);
+
+                            break;
+                        case Responses.LoginBounced:
+
+                            // Our login was not good.
+                            LogDataToList(@"You have given an invalid username or password!");
+
+                            // Disconnect
+                            _client.Disconnect();
+
+                            break;
+                        case Responses.UploadBounced:
+
+                            // Bad upload!
+                            LogDataToList(@"The uploaded Pokemon was rejected! Perhaps there is already a Pokemon in the GTS.");
+
+                            break;
+                        case Responses.UploadGood:
+
+                            // Good upload!
+                            LogDataToList(@"The uploaded Pokemon was accepted!");
+
+                            break;
+                        case Responses.Connected:
+
+                            LogDataToList(@"Connection properly Established, sending login information!");
+                            // Send our login information
+                            _client.Send(new Login { ID = Settings.Default.Uid, Password = tbPassword.Text }.ToByteArray());
+
+                            break;
+                        case Responses.Error:
+
+                            // Communication error perhaps...
+                            LogDataToList(@"There was a communication error. Please try again.");
+
+                            break;
+                    }
+                    
+                    break;
+                    
+
+            }
+
+
+        }
+
+        private void ClientConnectionEstablished(object sender, EventArgs e)
+        {
+            
+            // We are connected, it's time to login.
+            LogDataToList(@"Connection Established, awaiting confirmation!");
+            // client.BeginSend(new Login { ID = Properties.Settings.Default.Uid, Password = tbPassword.Text }.ToByteArray());
+
+        }
+
+        #endregion
+
+        #region Toolstrip Items
+
+        private void RefreshStatusToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            _client.Send(new Request { ClientRequest = Requests.Check }.ToByteArray());
+        }
+
+        private void RetrievePokémonToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            _client.Send(new Request { ClientRequest = Requests.GetPokemon }.ToByteArray());
+        }
+
+        private void UploadToolStripMenuItemClick(object sender, EventArgs e)
+        {
+
+            // Start working
+            var pkmn = new Pokemon();
+            var requirements = new Requirements();
+            var upload = new Upload();
+            var rnd = new Random();
+            var blob = new byte[25];
+            var pkmnGender = (Gender)Enum.Parse(typeof(Gender), cbUploadGender.SelectedItem.ToString());
+            var reqGender = (Gender)Enum.Parse(typeof(Gender), cbRequirementsGender.SelectedItem.ToString());
+
+            // Random data
+            rnd.NextBytes(blob);
+
+            // Build everything
+            pkmn.Blob = blob;
+            pkmn.Gender = pkmnGender;
+            pkmn.Level = (byte)nudUploadLevel.Value;
+            pkmn.NationalID = (short)(cbUploadPokemon.SelectedIndex + 1);
+            
+            // Requirements
+            requirements.Gender = reqGender;
+            requirements.MinLevel = (byte)nudRequirementsLow.Value;
+            requirements.MaxLevel = (byte)nudRequirementsHigh.Value;
+            requirements.NationalID = (short)(cbRequirementsPokemon.SelectedIndex + 1);
+
+            // Finishing touches
+            pkmn.Requirements = requirements;
+            upload.Pokemon = pkmn;
+
+            // Send
+            _client.Send(upload.ToByteArray());
+            LogDataToList(@"Uploading Pokemon to GTS, please wait...");
+
+        }
+
+        private void TradeToolStripMenuItemClick(object sender, EventArgs e)
+        {
+
+            if(lvSearchResults.SelectedItems.Count.Equals(1))
+            {
+                var pkmn = (SearchPkm) lvSearchResults.SelectedItems[0].Tag;
+                var req = pkmn.Requirements;
+
+                // build a new pokemon to match the requirements.
+                var tradepkmn = new Pokemon
+                                    {
+                                        NationalID = pkmn.Requirements.NationalID,
+                                        Level = pkmn.Requirements.MinLevel,
+                                        Gender =
+                                            pkmn.Requirements.Gender == Gender.Any
+                                                ? (_genderlessList.Contains(_pokemonList[pkmn.NationalID - 1])
+                                                       ? Gender.None
+                                                       : Gender.Male)
+                                                : pkmn.Requirements.Gender,
+                                        Blob = new byte[25],
+                                        ID = new Guid(),
+                                        Requirements = req
+                                    };
+
+                var trade = new Trade {ID = pkmn.ID, Pokemon = tradepkmn};
+
+                _client.Send(trade.ToByteArray());
+
+            }
+
+        }
+
+        private void LoadAdditionalResultsToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            _client.Send(new AdditionalResults { SearchID = (Guid)lvSearchResults.Tag }.ToByteArray());
+        }
+
+        private void ClearListToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            lvSearchResults.Items.Clear();
+        }
+
+        #endregion
+
+        #region ComboBox
+
+        private void CbSearchPokemonSelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            // Figure out the current Pokemon. If it's genderless, then yeah.
+            if (_genderlessList.Contains(cbSearchPokemon.SelectedItem.ToString()))
+            {
+                cbSearchGender.Items.Clear();
+                cbSearchGender.Items.Add("Any");
+            }
+            else
+            {
+                cbSearchGender.Items.Clear();
+                cbSearchGender.Items.Add("Male");
+                cbSearchGender.Items.Add("Female");
+                cbSearchGender.Items.Add("Any");
+            }
+            cbSearchGender.SelectedIndex = 0;
+            pbSearch.BackgroundImage = GetPokemon(cbSearchPokemon.SelectedIndex + 1);
+        }
+
+        private void CbUploadPokemonSelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            // Figure out the current Pokemon. If it's genderless, then yeah.
+            if (_genderlessList.Contains(cbUploadPokemon.SelectedItem.ToString()))
+            {
+                // No gender
+                cbUploadGender.Items.Clear();
+                cbUploadGender.Items.Add("None");
+            }
+            else
+            {
+                // Gender
+                cbUploadGender.Items.Clear();
+                cbUploadGender.Items.Add("Male");
+                cbUploadGender.Items.Add("Female");
+            }
+            cbUploadGender.SelectedIndex = 0;
+            pbUpload.BackgroundImage = GetPokemon(cbUploadPokemon.SelectedIndex + 1);
+        }
+
+        private void CbRequirementsPokemonSelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            // Figure out the current Pokemon. If it's genderless, then yeah.
+            if (_genderlessList.Contains(cbRequirementsPokemon.SelectedItem.ToString()))
+            {
+                // No gender
+                cbRequirementsGender.Items.Clear();
+                cbRequirementsGender.Items.Add("Any");
+            }
+            else
+            {
+                // Gender
+                cbRequirementsGender.Items.Clear();
+                cbRequirementsGender.Items.Add("Male");
+                cbRequirementsGender.Items.Add("Female");
+                cbRequirementsGender.Items.Add("Any");
+            }
+            cbRequirementsGender.SelectedIndex = 0;
+            pbRequirements.BackgroundImage = GetPokemon(cbRequirementsPokemon.SelectedIndex + 1);
+        }
+
+        #endregion
+
+        #region Buttons
+
+        private void BtnConnectClick(object sender, EventArgs e)
+        {
+            if (tbPassword.Text.Trim().Length.Equals(0)) return;
+            if (!_client.Connected)
+            {
+                _client.Connect("127.0.0.1", 2500);
+                _client.Connect("gts.tenfoldstudios.com", 2500);
+            }
+            
+
+        }
+
+        private void BtnDisconnectClick(object sender, EventArgs e)
+        {
+            if(_client.Connected) _client.Disconnect();
+        }
+
+        private void BtnSearchResetClick(object sender, EventArgs e)
+        {
+
+            cbSearchPokemon.SelectedIndex = 0;
+            cbSearchGender.SelectedIndex = 0;
+
+            nudSearchLow.Value = nudSearchLow.Minimum;
+            nudSearchHigh.Value = nudSearchHigh.Minimum;
+
+        }
+
+        private void BtnSearchClick(object sender, EventArgs e)
+        {
+            var genderEnum = (Gender)Enum.Parse(typeof(Gender), cbSearchGender.SelectedItem.ToString());
+            LogDataToList(@"Sending a Search Request...");
+            _client.Send(new SearchRequest { 
+                Gender = genderEnum, 
+                MinLevel = (byte)(nudSearchLow.Value), 
+                MaxLevel = (byte)(nudSearchHigh.Value), 
+                NationalID = (short)(cbSearchPokemon.SelectedIndex + 1) 
+            }.ToByteArray());
+        }
+
+        private void BtnUploadResetClick(object sender, EventArgs e)
+        {
+            cbUploadPokemon.SelectedIndex = 0;
+            nudUploadLevel.Value = nudUploadLevel.Minimum;
+            cbUploadGender.SelectedIndex = 0;
+        }
+
+        private void BtnRequirementsResetClick(object sender, EventArgs e)
+        {
+            cbRequirementsPokemon.SelectedIndex = 0;
+            nudRequirementsLow.Value = nudRequirementsLow.Minimum;
+            nudRequirementsHigh.Value = nudRequirementsHigh.Minimum;
+            cbRequirementsGender.SelectedIndex = 0;
+        }
+
+        private void LvSearchResultsDoubleClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void LbLogDoubleClick(object sender, EventArgs e)
+        {
+            if (lbLog.SelectedIndex >= 0)
+                MessageBox.Show(lbLog.SelectedItem.ToString(), Resources.FrmMain_LbLogDoubleClick_Logging_Details, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        #endregion
+
+    }
+}

@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:Pipeline="Microsoft.Xna.Framework.Content.Pipeline">
+  <Asset Type="Pipeline:BuildItemCollection">
+    <Item>
+      <Source>Effect.fx</Source>
+      <Name>Effect</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\bin\Content\Effect.xnb</Output>
+      <Time>2012-04-13T07:59:48.7399686-05:00</Time>
+    </Item>
+    <Item>
+      <Source>simpleEffect.fx</Source>
+      <Name>simpleEffect</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\bin\Content\simpleEffect.xnb</Output>
+      <Time>2012-04-13T07:59:48.7099669-05:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\path_hud.png</Source>
+      <Name>Textures\path_hud</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\bin\Content\Textures\path_hud.xnb</Output>
+      <Time>2012-04-13T07:59:48.711967-05:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\wander_hud.png</Source>
+      <Name>Textures\wander_hud</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\bin\Content\Textures\wander_hud.xnb</Output>
+      <Time>2012-04-13T07:59:48.7149672-05:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\scenery_hud.png</Source>
+      <Name>Textures\scenery_hud</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\bin\Content\Textures\scenery_hud.xnb</Output>
+      <Time>2012-04-13T07:59:48.7179674-05:00</Time>
+    </Item>
+    <Item>
+      <Source>font.spritefont</Source>
+      <Name>font</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\bin\Content\font.xnb</Output>
+      <Time>0001-01-01T00:00:00</Time>
+    </Item>
+    <BuildSuccessful>false</BuildSuccessful>
+    <Settings>
+      <ContentProjectGUID>{3AAC2436-FF30-4D9E-B6DB-7DD55010214C}</ContentProjectGUID>
+      <TargetPlatform>Windows</TargetPlatform>
+      <TargetProfile>Reach</TargetProfile>
+      <BuildConfiguration>Debug</BuildConfiguration>
+      <CompressContent>false</CompressContent>
+      <RootDirectory>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\LiveMapMakerContent\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\LiveMapMaker\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\LiveMapMaker\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\bin\Content\</OutputDirectory>
+    </Settings>
+    <Assemblies>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.VideoImporters.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll</Key>
+        <Value>2011-09-01T16:22:30-05:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
+        <Value>2012-05-03T08:43:02.3078143-05:00</Value>
+      </Assembly>
+    </Assemblies>
+  </Asset>
+</XnaContent>

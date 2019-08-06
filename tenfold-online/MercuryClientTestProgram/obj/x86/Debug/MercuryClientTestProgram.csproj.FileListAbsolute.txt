@@ -1,0 +1,14 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\bin\Debug\MercuryClientTestProgram.exe.config
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\bin\Debug\MercuryClientTestProgram.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\bin\Debug\MercuryClientTestProgram.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\bin\Debug\Phoenix.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\bin\Debug\Structures.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\bin\Debug\Phoenix.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\bin\Debug\Structures.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\obj\x86\Debug\MercuryClientTestProgram.csprojResolveAssemblyReference.cache
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\obj\x86\Debug\MercuryClientTestProgram.Form1.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\obj\x86\Debug\MercuryClientTestProgram.FrmMain.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\obj\x86\Debug\MercuryClientTestProgram.Properties.Resources.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\obj\x86\Debug\MercuryClientTestProgram.csproj.GenerateResource.Cache
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\obj\x86\Debug\MercuryClientTestProgram.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryClientTestProgram\obj\x86\Debug\MercuryClientTestProgram.pdb

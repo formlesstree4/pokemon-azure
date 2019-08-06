@@ -1,0 +1,6 @@
+Content\Effect.xnb
+Content\simpleEffect.xnb
+Content\Textures\path_hud.xnb
+Content\Textures\wander_hud.xnb
+Content\Textures\scenery_hud.xnb
+Content\font.xnb

@@ -1,0 +1,75 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
+using PokeEngine.Input;
+using PokeEngine.Menu;
+
+namespace PokeEngine.Screens
+{
+
+	class TitleMenuScreen : Screen
+	{
+
+        private MenuWindow menu;
+        private List<string> optionList;
+        private const float MENU_PADDING = 32f;
+	
+		public TitleMenuScreen(GraphicsDeviceManager g, ContentManager c, SpriteFont f)
+			:base(g, c, f)
+		{
+            optionList = new List<string>();
+            optionList.Add("New Game");
+            optionList.Add("Load Game");
+            optionList.Add("Multiplayer");
+            optionList.Add("Options");
+            optionList.Add("Mystery Gift");
+
+            menu = new MenuWindow(new Vector2(5, 5), optionList, MENU_PADDING);
+		}
+		
+		public override void HandleInput(GamePadState gamePadState, KeyboardState keyState, MouseState mouseState)
+        {
+			
+			if(InputHandler.WasKeyPressed(keyState, KeyBind.KeyList.MENU_UP, 10))
+			{
+				menu.SelectionUp();
+			}
+			if(InputHandler.WasKeyPressed(keyState, KeyBind.KeyList.MENU_DOWN, 10))
+			{
+				menu.SelectionDown();
+			}
+			if(InputHandler.WasKeyPressed(keyState, KeyBind.KeyList.MENU_SELECT, 10))
+			{
+				switch(menu.GetSelection())
+				{
+					case 0: 
+					case 1: 
+					case 2: 
+					case 3:
+                    case 4: break;
+				}
+			}
+			if(InputHandler.WasKeyPressed(keyState, KeyBind.KeyList.MENU_BACK, 10))
+			{
+				this.Close();
+			}
+			
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+			
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            menu.Draw(spriteBatch, font, Color.White);
+        }
+	}	
+	
+}

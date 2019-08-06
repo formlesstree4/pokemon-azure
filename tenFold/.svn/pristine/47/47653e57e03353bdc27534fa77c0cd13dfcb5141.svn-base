@@ -1,0 +1,266 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
+using System.IO;
+using PokeEngine.Menu;
+using System.Threading.Tasks;
+using System.Threading;
+using Microsoft.Xna.Framework.Input;
+using PokeEngine.Input;
+
+namespace PokeEngine.Screens
+{
+    static class CinematicScreen
+    {
+        private static Object lockObject;
+        public static bool isActive = false;
+        public static bool isVisible = false;
+        public static GraphicsDeviceManager graphics;
+        public static SpriteBatch spriteBatch;
+        public static ContentManager content;
+        private static SpriteFont font;
+
+        private static bool requiresInput;
+        private static bool canSkip;
+        private static Texture2D tex;
+        private static Texture2D nextTex;
+        private static Rectangle drawLoc;
+        private static Vector2 startPoint;
+        private static Vector2 endPoint;
+        private static Vector2 drawPoint;
+        private static float startScale;
+        private static float endScale;
+        private static int maxTime;
+        private static int time;
+        private static int actionIndex; //the action we are up to in the list
+        private static List<CinematicAction> actions;
+
+        static public void Initialize(GraphicsDeviceManager g, SpriteBatch s, ContentManager c, SpriteFont f)
+        {
+            graphics = g;
+            spriteBatch = s;
+            content = c;
+            font = f;
+            lockObject = new Object();
+
+            drawLoc = new Rectangle(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight / 2, 1, 1);
+        }
+
+        /// <summary>
+        /// Starts up a new cinematic with the list of actions.
+        /// Once the list is depleted it ends.
+        /// </summary>
+        /// <param name="actions"></param>
+        public static void NewCinematic(List<CinematicAction> inActions)
+        {
+            if(inActions != null && inActions.Count >= 1)
+            {
+                actions = inActions;
+                ScreenHandler.activeScreen = ScreenHandler.ActiveScreen.Cinematic;
+                isActive = true;
+                isVisible = true;
+                actionIndex = 0;
+                time = 0;
+                maxTime = actions[actionIndex].maxTime;
+                startPoint = actions[actionIndex].startPoint;
+                endPoint = actions[actionIndex].endPoint;
+                startScale = actions[actionIndex].startScale;
+                endScale = actions[actionIndex].endScale;
+                requiresInput = actions[actionIndex].requiresInput;
+                canSkip = actions[actionIndex].canSkip;
+
+                LoadNextImage(actions[actionIndex]); //load up the first texture (goes into nextTex)
+                tex = nextTex; //set it as the current texture
+                nextTex = null;
+
+                //if there is a second action start loading that up
+                if (actions.Count >= 2)
+                {
+                    if (actions[actionIndex].image == actions[actionIndex + 1].image)
+                    {
+                        nextTex = tex;
+                    }
+                    else
+                    {
+                        Task.Factory.StartNew(() => LoadNextImage(actions[actionIndex + 1]));
+                    }
+                }
+            }
+        }
+
+        public static void Update()
+        {
+            if (isActive)
+            {
+                //if the current action has run it's course and we are out of actions
+                if (time >= maxTime && actionIndex + 1 >= actions.Count)
+                {
+                    //automatically finish only if we don't require input
+                    if (!requiresInput)
+                    {
+                        FinishCinematic();
+                    }
+                }
+                //if the current action has run it's course and we still have remaining actions
+                else if (time >= maxTime && actionIndex + 1 < actions.Count)
+                {
+                    //automatically move to next one only if we don't require input
+                    if (!requiresInput)
+                    {
+                        NextAction();
+                    }
+                }
+                //otherwise update as normal
+                else
+                {
+                    //update positon and scale of the image
+                    drawPoint = new Vector2(startPoint.X + ((float)time / (float)maxTime) * (endPoint.X - startPoint.X),
+                                            startPoint.Y + ((float)time / (float)maxTime) * (endPoint.Y - startPoint.Y));
+
+                    float currentScale = startScale + ((float)time / (float)maxTime) * (endScale - startScale);
+                    drawLoc.Width = (int)((float)tex.Width * currentScale);
+                    drawLoc.Height = (int)((float)tex.Height * currentScale);
+                    time++;
+                }
+            }
+        }
+
+        private static void NextAction()
+        {
+            //swap to the next action
+            actionIndex++;
+            time = 0;
+            maxTime = actions[actionIndex].maxTime;
+            startPoint = actions[actionIndex].startPoint;
+            endPoint = actions[actionIndex].endPoint;
+            startScale = actions[actionIndex].startScale;
+            endScale = actions[actionIndex].endScale;
+            requiresInput = actions[actionIndex].requiresInput;
+            canSkip = actions[actionIndex].canSkip;
+            if (!String.IsNullOrEmpty(actions[actionIndex].message))
+            {
+                DialogBox.newMessage(actions[actionIndex].message);
+            }
+
+            //swap to the next texture
+            lock (lockObject)
+            {
+                while (nextTex == null)
+                {
+                    Monitor.Wait(lockObject);
+                }
+                tex = nextTex;
+                nextTex = null;
+            }
+
+            //begin loading next texture if applicable
+            if (actionIndex + 1 < actions.Count)
+            {
+                if (actions[actionIndex].image == actions[actionIndex + 1].image)
+                {
+                    nextTex = tex;
+                }
+                else
+                    Task.Factory.StartNew(() => LoadNextImage(actions[actionIndex + 1]));
+            }
+        }
+
+        private static void FinishCinematic()
+        {
+            isActive = false;
+            isVisible = false;
+            ScreenHandler.activeScreen = ScreenHandler.ActiveScreen.Game;
+            GameScreen.isActive = true;
+            GameScreen.isVisible = true;
+        }
+
+        public static void HandleInput()
+        {
+            if (canSkip && isActive)
+            {
+                if (Input.InputHandler.isKeyPress(KeyBind.KeyList.OVERWORLD_ACTION))
+                {
+                    //if we are out of actions
+                    if (actionIndex + 1 >= actions.Count)
+                    {
+                        FinishCinematic();
+                    }
+                    //if there are remaning actions
+                    else if (actionIndex + 1 < actions.Count)
+                    {
+                        NextAction();
+                    }
+
+                }
+            }
+            else if (requiresInput && isActive)
+            {
+                if (Input.InputHandler.isKeyPress(KeyBind.KeyList.OVERWORLD_ACTION))
+                {
+                    //if the current action has run it's course and we are out of actions
+                    if (time >= maxTime && actionIndex + 1 >= actions.Count)
+                    {
+                        //finish on input
+                        FinishCinematic();
+                    }
+                    //if the current action has run it's course and we still have remaining actions
+                    else if (time >= maxTime && actionIndex + 1 < actions.Count)
+                    {
+                        //move to next action on input
+                        NextAction();
+                    }
+                }
+            }
+        }
+
+        public static void Draw()
+        {
+            if (isVisible)
+            {
+                spriteBatch.Draw(tex, drawLoc, null, Color.White, 0f, drawPoint, SpriteEffects.None, 0);
+            }
+        }
+
+        private static void LoadNextImage(CinematicAction action)
+        {
+            lock (lockObject)
+            {
+                string rootDir = Directory.GetCurrentDirectory();
+                string path = rootDir + "\\Content\\Sprites\\Cinematics\\" + action.image;
+                nextTex = Texture2D.FromStream(graphics.GraphicsDevice, new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read));
+
+                Monitor.Pulse(lockObject);
+            }
+        }
+    }
+
+    public class CinematicAction
+    {
+        internal Vector2 startPoint;
+        internal Vector2 endPoint;
+        internal float startScale;
+        internal float endScale;
+        internal int maxTime;
+        internal String image;
+        internal bool requiresInput; //whether you must press a key to advance to the next action
+        internal bool canSkip; //whether we can skip to the next action
+        internal String message; //message to display in dialogue box at beginning of action
+
+        public CinematicAction(Vector2 startPoint, Vector2 endPoint, float startScale, float endScale, int maxTime, String message, String image, bool input, bool skip)
+        {
+            this.startPoint = startPoint;
+            this.endPoint = endPoint;
+            this.startScale = startScale;
+            this.endScale = endScale;
+            this.maxTime = maxTime;
+            this.image = image;
+            this.requiresInput = input;
+            this.canSkip = skip;
+            this.message = message;
+        }
+    }
+}

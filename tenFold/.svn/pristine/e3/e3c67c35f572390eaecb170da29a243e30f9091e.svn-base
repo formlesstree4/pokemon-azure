@@ -1,0 +1,89 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+using Microsoft.Xna.Framework.Input;
+
+
+namespace PokeEngine.Input
+{
+    static class KeyBind
+    {
+
+        public static KeyConfig KeyList;
+
+        private static string workingDir;
+
+        public static void Initialize()
+        {
+            workingDir = Assembly.GetExecutingAssembly().Location;
+            var name = System.IO.Path.GetFileName(workingDir);
+            workingDir = workingDir.Replace(name, string.Empty) + "\\Content\\Input\\";
+
+            if (Directory.Exists(workingDir))
+            {
+                try
+                {
+                    Load();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Something went wrong with the keyconfig: \n" + ex.Message);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory(workingDir);
+            }
+        }
+
+        public static void Save()
+        {
+            //IFormatter formatter = new BinaryFormatter();
+            try
+            {
+                var stream = new FileStream(workingDir + "keyconfig.dat", FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+                var bw = new BinaryWriter(stream);
+                bw.Write(KeyList.Save());
+                bw.Close();
+                stream.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Could not save keyconfig file: \n" + ex.Message + "\n\n");
+            }
+        }
+
+        public static void Load()
+        {
+            if (File.Exists(workingDir + "keyconfig.dat"))
+            {
+                //IFormatter formatter = new BinaryFormatter();
+                try
+                {
+                    KeyList = new KeyConfig();
+                    Stream stream = new FileStream(workingDir + "keyconfig.dat", FileMode.Open, FileAccess.Read, FileShare.Read);
+                    var br = new BinaryReader(stream);
+                    KeyList.Load(br.ReadBytes(57));
+                    br.Close();
+                    stream.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Could not load keyconfig file: \n" + ex.Message + "\n\n");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No keyconfig file found, creating new...");
+                KeyList = new KeyConfig();
+                Save();
+            }
+
+        }
+    }
+}

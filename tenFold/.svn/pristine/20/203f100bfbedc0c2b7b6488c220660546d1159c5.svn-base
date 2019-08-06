@@ -1,0 +1,254 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Input;
+using PokeEngine.Battle;
+using PokeEngine.Trainers;
+using PokeEngine.Pokemon;
+using PokeEngine.Menu;
+using System.Threading;
+using System.IO;
+using PokeEngine.Tools;
+
+namespace PokeEngine.Screens
+{
+    class BattleScreen
+    {
+        static GraphicsDeviceManager graphics;
+        static SpriteBatch spriteBatch;
+        static ContentManager content;
+        static SpriteFont font;
+        public static PokeBattle battle;
+        private static Thread thread;
+        public static State state;
+        static Texture2D red, orange, green; //textures to use for health bars
+        private static Texture2D playerHPBarTexture;
+        private static Texture2D opponentHPBarTexture;
+        private static Rectangle playerHPBarRect;
+        private static Rectangle opponentHPBarRect;
+        private static Rectangle playerPokeRect;
+        private static Rectangle opponentPokeRect;
+
+        static public void Initialize(GraphicsDeviceManager g, SpriteBatch s, ContentManager c, SpriteFont f)
+        {
+            graphics = g;
+            spriteBatch = s;
+            content = c;
+            font = content.Load<SpriteFont>("aansa");
+
+            //make some colour textures to use when drawing health bars
+            Color[] colour = new Color[1];
+            green = new Texture2D(g.GraphicsDevice, 1, 1);
+            colour[0] = new Color(47, 215, 71);
+            green.SetData<Color>(colour);
+            orange = new Texture2D(g.GraphicsDevice, 1, 1);
+            colour[0] = new Color(249, 207, 78);
+            orange.SetData<Color>(colour);
+            red = new Texture2D(g.GraphicsDevice, 1, 1);
+            colour[0] = new Color(255, 34, 34);
+            red.SetData<Color>(colour);
+
+            playerHPBarTexture = SaveLoad.LoadTexture2D(@"Content\Textures\Battle\playerHP.png", g.GraphicsDevice);
+            opponentHPBarTexture = SaveLoad.LoadTexture2D(@"Content\Textures\Battle\opponentHP.png", g.GraphicsDevice);
+            playerHPBarRect = new Rectangle(340, 265, playerHPBarTexture.Width, playerHPBarTexture.Height);
+            opponentHPBarRect = new Rectangle(20,40,opponentHPBarTexture.Width,opponentHPBarTexture.Height);
+            playerPokeRect = new Rectangle(70,200,192,192);
+            opponentPokeRect = new Rectangle(350,20,192,192);
+        }
+
+        static public void Draw()
+        {
+            DrawPlayerHealthBar(battle.Positions[0]);
+            DrawOpponentHealthBar(battle.Positions[1]);
+            DrawPlayerPokemon(battle.Positions[0]);
+            DrawOpponentPokemon(battle.Positions[1]);
+
+            if (BattleMenu.isVisible)
+            {
+
+                BattleMenu.Draw();
+            }
+        }
+
+        private static void DrawPlayerPokemon(BattlePosition battlePosition)
+        {
+            spriteBatch.Draw(battlePosition.backTexture, playerPokeRect, Color.White);
+        }
+
+        private static void DrawOpponentPokemon(BattlePosition battlePosition)
+        {
+            spriteBatch.Draw(battlePosition.frontTexture, opponentPokeRect, Color.White);
+        }
+
+        private static void DrawPlayerHealthBar(BattlePosition position)
+        {
+            if (position.pokemon == null)
+                return;
+
+            int currentHealth = position.pokemon.currentHealth;
+            int maxHealth = position.pokemon.maxHealth;
+            int currentEXP = position.pokemon.pokemon.currentExp;
+            int goalEXP = position.pokemon.pokemon.expAtLevel(position.pokemon.pokemon.level);
+            
+
+            Texture2D colour;
+            if (currentHealth > (maxHealth / 2))
+                colour = green;
+            else if (currentHealth > (maxHealth / 10))
+                colour = orange;
+            else
+                colour = red;
+
+            //draw HPBar
+            spriteBatch.Draw(playerHPBarTexture, playerHPBarRect, Color.White);
+            //draw HP
+            spriteBatch.Draw(colour, new Rectangle(playerHPBarRect.X + 73, playerHPBarRect.Y + 5, (int)(144.0 * ((double)currentHealth / (double)maxHealth)), 4), Color.White);
+            //draw EXP
+            spriteBatch.Draw(orange, new Rectangle(playerHPBarRect.X + 42, playerHPBarRect.Y + 19, (int)(217.0 * ((double)currentEXP / (double)goalEXP)), 2), Color.White);
+            //draw Pokemon name
+            spriteBatch.DrawString(font, position.pokemon.pokemon.Nickname, new Vector2(playerHPBarRect.X + 40, playerHPBarRect.Y - 15), Color.White);
+            spriteBatch.DrawString(font, position.pokemon.pokemon.Nickname, new Vector2(playerHPBarRect.X + 41, playerHPBarRect.Y - 16), Color.Black);
+            //draw Level
+            spriteBatch.DrawString(font, "Lv. " + position.pokemon.pokemon.level, new Vector2(playerHPBarRect.X + 226, playerHPBarRect.Y - 15), Color.White);
+            spriteBatch.DrawString(font, "Lv. " + position.pokemon.pokemon.level, new Vector2(playerHPBarRect.X + 227, playerHPBarRect.Y - 16), Color.Black);
+            //draw HP Text
+            spriteBatch.DrawString(font, currentHealth + "/" + maxHealth, new Vector2(playerHPBarRect.X + 226, playerHPBarRect.Y + 2), Color.White);
+            spriteBatch.DrawString(font, currentHealth + "/" + maxHealth, new Vector2(playerHPBarRect.X + 227, playerHPBarRect.Y + 1), Color.Black);
+        }
+
+        private static void DrawOpponentHealthBar(BattlePosition position)
+        {
+            if (position.pokemon == null)
+                return;
+
+            int currentHealth = position.pokemon.currentHealth;
+            int maxHealth = position.pokemon.maxHealth;
+            int currentEXP = position.pokemon.pokemon.currentExp;
+            int goalEXP = position.pokemon.pokemon.expAtLevel(position.pokemon.pokemon.level);
+
+            Texture2D colour;
+            if (currentHealth > (maxHealth / 2))
+                colour = green;
+            else if (currentHealth > (maxHealth / 10))
+                colour = orange;
+            else
+                colour = red;
+
+            //draw HPBar
+            spriteBatch.Draw(opponentHPBarTexture, opponentHPBarRect, Color.White);
+            //draw HP
+            spriteBatch.Draw(colour, new Rectangle(opponentHPBarRect.X + 66, opponentHPBarRect.Y + 5, (int)(195.0 * ((double)currentHealth / (double)maxHealth)), 4), Color.White);
+            //draw Pokemon name
+            spriteBatch.DrawString(font, position.pokemon.pokemon.Nickname, new Vector2(opponentHPBarRect.X + 40, opponentHPBarRect.Y - 15), Color.White);
+            spriteBatch.DrawString(font, position.pokemon.pokemon.Nickname, new Vector2(opponentHPBarRect.X + 41, opponentHPBarRect.Y - 16), Color.Black);
+            //draw Level
+            spriteBatch.DrawString(font, "Lv. " + position.pokemon.pokemon.level, new Vector2(opponentHPBarRect.X + 237, opponentHPBarRect.Y - 15), Color.White);
+            spriteBatch.DrawString(font, "Lv. " + position.pokemon.pokemon.level, new Vector2(opponentHPBarRect.X + 238, opponentHPBarRect.Y - 16), Color.Black);
+        }
+
+
+        static public void Update(GameTime gameTime)
+        {
+            //check whether the battle is over so we can end the thread
+            if (battle.isOver && state != State.BattleEnd)
+            {
+                thread.Join();
+                state = State.BattleEnd;
+                DialogBox.newMessage("Battle is now Over");
+                if (battle.YouWin)
+                {
+                    battle.Positions[0].pokemon.pokemon.addExp(4000); // add some made up amount of exp for testing
+                    DialogBox.newMessage("You are the Victor!");
+                }
+                else
+                {
+                    battle.Positions[1].pokemon.pokemon.addExp(4000);
+                    DialogBox.newMessage("You Lose!");
+                }
+                BattleMenu.isVisible = false;
+                BattleMenu.Unload();
+            }
+            //check whether we are waiting for player input
+            else if (battle.waitingForPlayerInput)
+            {
+                state = State.Input;
+                BattleMenu.isVisible = true;
+            }
+            //otherwise we are in the action state I guess
+            else if(state != State.BattleEnd)
+            {
+                state = State.Action;
+            }
+
+            if(BattleMenu.isVisible)
+                BattleMenu.Update();
+
+
+        }
+
+        static public void handleKeys()
+        {
+            //if the battle is waiting for player input
+            if (state == State.Input)
+            {
+                //get input based on key presses
+                lock (battle.lockObject)
+                {
+                    if (Input.InputHandler.isKeyPress(Keys.D1) && battle.Positions[battle.waitingIndex].pokemon.move[0] != null)
+                    {
+                        BattleChoice nextChoice = BattleChoice.UseMove(battle.Positions[battle.waitingIndex].pokemon.move[0], battle.Positions[1]);
+                        battle.Positions[battle.waitingIndex].choice = nextChoice;
+                        battle.waitingForPlayerInput = false;
+                        Monitor.Pulse(battle.lockObject);
+                    }
+                    else if (Input.InputHandler.isKeyPress(Keys.D2) && battle.Positions[battle.waitingIndex].pokemon.move[1] != null)
+                    {
+                        BattleChoice nextChoice = BattleChoice.UseMove(battle.Positions[battle.waitingIndex].pokemon.move[1], battle.Positions[1]);
+                        battle.Positions[battle.waitingIndex].choice = nextChoice;
+                        battle.waitingForPlayerInput = false;
+                        Monitor.Pulse(battle.lockObject);
+                    }
+                    else if (Input.InputHandler.isKeyPress(Keys.D3) && battle.Positions[battle.waitingIndex].pokemon.move[2] != null)
+                    {
+                        BattleChoice nextChoice = BattleChoice.UseMove(battle.Positions[battle.waitingIndex].pokemon.move[2], battle.Positions[1]);
+                        battle.Positions[battle.waitingIndex].choice = nextChoice;
+                        battle.waitingForPlayerInput = false;
+                        Monitor.Pulse(battle.lockObject);
+                    }
+                    else if (Input.InputHandler.isKeyPress(Keys.D4) )
+                    {
+                        BattleChoice nextChoice = BattleChoice.RunFromBattle();
+                        battle.Positions[battle.waitingIndex].choice = nextChoice;
+                        battle.waitingForPlayerInput = false;
+                        Monitor.Pulse(battle.lockObject);
+                    }
+                }
+            }
+        }
+
+        static public void startSingleBattle(Trainer trainerOne, Trainer trainerTwo)
+        {
+            ScreenHandler.activeScreen = ScreenHandler.ActiveScreen.Battle;
+            //our state is currently at the start of the battle
+            state = State.BattleStart;            
+
+            //create instance of battle
+            battle = new PokeBattle(trainerOne, trainerTwo);            
+
+            //start the battle thread
+            thread = new Thread(battle.BattleLoop);
+            thread.Start();
+
+            BattleMenu.Initialize(graphics, spriteBatch, content, font);
+        }
+    }
+
+enum State
+{
+    Input, Action, BattleStart, BattleEnd, PostBattle
+}
+}

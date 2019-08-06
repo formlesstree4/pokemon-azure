@@ -1,0 +1,125 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
+using PokeEngine.Screens;
+using PokeEngine.Input;
+using Microsoft.Xna.Framework.Input;
+
+namespace PokeEngine.Menu
+{
+    class MenuScreen : Screen
+    {
+
+        private byte selection;
+        private Window menu;
+        private const int OPTION_SCALE = 32;
+        private Vector2 MENU_POS = new Vector2(10f);
+        private string[] OPTION_LIST = { "Pokemon", "Bag", "Trainer", "Save", "Options", "Exit" };
+
+        public MenuScreen(GraphicsDeviceManager g, ContentManager c, SpriteFont f) 
+            : base(g, c, f)
+        {
+            selection = 0;
+
+            menu = new Window((int)((getBiggestOptionWidth() % 32) + 2), OPTION_LIST.Length, MENU_POS);
+
+        }
+
+        public override void HandleInput(GamePadState gamePadState, KeyboardState keyState, MouseState mouseState)
+        {
+            
+            if(InputHandler.WasKeyPressed(keyState, KeyBind.KeyList.MENU_UP, 10))
+                selection = selection > 0 ? (byte)(selection - 1) : (byte)(OPTION_LIST.Length - 1);
+
+            if (InputHandler.WasKeyPressed(keyState, KeyBind.KeyList.MENU_DOWN, 10))
+                selection = selection < (OPTION_LIST.Length - 1) ? (byte)(selection + 1) : (byte)0;
+
+            if (InputHandler.WasKeyPressed(keyState, KeyBind.KeyList.MENU_SELECT, 10))
+                selectOption(selection);
+            
+            base.HandleInput(gamePadState, keyState, mouseState);
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            
+            
+            
+            base.Update(gameTime);
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+
+            menu.Draw(spriteBatch, Color.White);
+
+            for (int i = 0; i < OPTION_LIST.Length; i++)
+            {
+                Vector2 optionPos = new Vector2(
+                    MENU_POS.X + OPTION_SCALE,
+                    MENU_POS.Y + ( (i + 1) * OPTION_SCALE ));
+
+                spriteBatch.DrawString(font, OPTION_LIST[i], optionPos, Color.White);
+
+                if ((int)selection == i)
+                {
+                    Rectangle markerPos = new Rectangle(
+                        (int)(MENU_POS.X + OPTION_SCALE - (ScreenHandler.WindowMarker.Width - (ScreenHandler.WindowMarker.Width / 2))),
+                        (int)(MENU_POS.Y + OPTION_SCALE + (i * OPTION_SCALE)),
+                        ScreenHandler.WindowMarker.Width,
+                        ScreenHandler.WindowMarker.Height);
+                    spriteBatch.Draw(ScreenHandler.WindowMarker, markerPos, Color.White);
+                }
+            }
+            
+            base.Draw(spriteBatch);
+        }
+
+        private float getBiggestOptionHeight()
+        {
+            float size = 0.0f;
+
+            for (int i = 0; i < OPTION_LIST.Length; i++)
+            {
+                float nextSize = font.MeasureString(OPTION_LIST[i]).Y;
+                if (size < nextSize)
+                    size = nextSize;
+            }
+
+            return size;
+        }
+
+        private float getBiggestOptionWidth()
+        {
+            float size = 0.0f;
+
+            for (int i = 0; i < OPTION_LIST.Length; i++)
+            {
+                float nextSize = font.MeasureString(OPTION_LIST[i]).Y;
+                if (size < nextSize)
+                    size = nextSize;
+            }
+
+            return size;
+        }
+
+        private void selectOption(byte o)
+        {
+            switch (o)
+            {
+                case 0: ScreenHandler.PushScreen(new Pokemon_InventoryScreen(graphics, content, font)); break;
+                case 1: ScreenHandler.PushScreen(new InventoryScreen(graphics, content, font));  break;
+                case 2: ScreenHandler.PushScreen(new TrainerScreen(graphics, content, font)); break;
+                case 3: ScreenHandler.PushScreen(new SaveScreen(graphics, content, font)); break;
+                case 4: ScreenHandler.PushScreen(new OptionMenu(graphics, content, font)); break;
+                case 5: Close(); break;
+                default: break;
+            }
+        }
+
+    }
+}

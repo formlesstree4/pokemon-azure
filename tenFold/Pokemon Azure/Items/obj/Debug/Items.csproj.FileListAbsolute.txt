@@ -1,0 +1,4 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\bin\Items.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\bin\Items.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\Items\obj\Debug\Items.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\Items\obj\Debug\Items.pdb

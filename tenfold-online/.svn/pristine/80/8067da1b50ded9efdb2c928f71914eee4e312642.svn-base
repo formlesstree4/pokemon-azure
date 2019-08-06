@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Mars.Classes
+{
+
+    /// <summary>
+    /// An individual room inside the lobby.
+    /// </summary>
+    public class Room
+    {
+    }
+
+}

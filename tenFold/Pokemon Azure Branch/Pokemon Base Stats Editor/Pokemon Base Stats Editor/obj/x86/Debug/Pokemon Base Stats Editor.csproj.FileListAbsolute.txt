@@ -1,0 +1,7 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\bin\Pokemon Base Stats Editor.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\bin\Pokemon Base Stats Editor.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\Pokemon Base Stats Editor\Pokemon Base Stats Editor\obj\x86\Debug\Pokemon_Base_Stats_Editor.Main.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\Pokemon Base Stats Editor\Pokemon Base Stats Editor\obj\x86\Debug\Pokemon_Base_Stats_Editor.Properties.Resources.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\Pokemon Base Stats Editor\Pokemon Base Stats Editor\obj\x86\Debug\Pokemon Base Stats Editor.csproj.GenerateResource.Cache
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\Pokemon Base Stats Editor\Pokemon Base Stats Editor\obj\x86\Debug\Pokemon Base Stats Editor.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\Pokemon Base Stats Editor\Pokemon Base Stats Editor\obj\x86\Debug\Pokemon Base Stats Editor.pdb

@@ -1,0 +1,109 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Input;
+using PokeEngine.Menu;
+using PokeEngine.Input;
+using PokeEngine.Tools;
+
+namespace PokeEngine.Screens
+{
+    static class ScreenHandler
+    {
+        
+        private static GraphicsDeviceManager graphics;
+        private static ContentManager content;
+        private static SpriteFont font;
+        private static List<Screen> screenStack;
+                
+        public static Options GameOptions;
+        public static int SCREEN_WIDTH, SCREEN_HEIGHT;
+        public static Texture2D WindowMarker, WindowBackground, WindowBackgroundCorner, WindowBackgroundSide, WindowCorner, WindowSide;
+        public static SoundEffect MarkerUp, MarkerDown, MenuSelect;
+        public static bool Exit;
+        public static float FontWidth, FontHeight;
+
+        public static void Initialize(GraphicsDeviceManager g, ContentManager c, SpriteFont f)
+        {
+            graphics = g;
+            content = c;
+            font = f;
+            screenStack = new List<Screen>();
+            screenStack.Add(new TitleScreen(graphics, content, font));
+
+            GameOptions = new Options();
+            SCREEN_WIDTH = graphics.PreferredBackBufferWidth;
+            SCREEN_HEIGHT = graphics.PreferredBackBufferHeight;
+
+            WindowMarker =            content.Load<Texture2D>(@"Textures\Menu\" + GameOptions.Frame.ToString() + "\\marker");
+            WindowBackground =        content.Load<Texture2D>(@"Textures\Menu\" + GameOptions.Frame.ToString() + "\\background");
+            WindowBackgroundCorner =  content.Load<Texture2D>(@"Textures\Menu\" + GameOptions.Frame.ToString() + "\\backgroundCorner");
+            WindowBackgroundSide =    content.Load<Texture2D>(@"Textures\Menu\" + GameOptions.Frame.ToString() + "\\backgroundSide");
+            WindowCorner =            content.Load<Texture2D>(@"Textures\Menu\" + GameOptions.Frame.ToString() + "\\corner");
+            WindowSide =              content.Load<Texture2D>(@"Textures\Menu\" + GameOptions.Frame.ToString() + "\\side");
+
+            MarkerUp =      content.Load<SoundEffect>(@"SoundEffects\Menu\markerUp");
+            MarkerDown =    content.Load<SoundEffect>(@"SoundEffects\Menu\markerUp");
+            MenuSelect =    content.Load<SoundEffect>(@"SoundEffects\Menu\markerUp");
+
+            FontWidth = font.MeasureString("E").X;
+            FontHeight = font.MeasureString("E").Y;
+
+            Exit = false;
+
+        }
+
+        public static void HandleInput(GamePadState g, KeyboardState k, MouseState m)
+        {
+            if (DialogBox.IsActive)
+                DialogBox.HandleInput(g, k, m);
+            else if (screenStack.Last<Screen>().IsActive)
+                screenStack.Last<Screen>().HandleInput(g, k, m);
+            
+
+            if (InputHandler.IsCooling())
+                InputHandler.UpdateCooling();
+        }
+
+        public static void Update(GameTime gameTime)
+        {
+            if (screenStack.Last<Screen>().IsAlive)
+                screenStack.Last<Screen>().Update(gameTime);
+            if (DialogBox.IsAlive)
+                DialogBox.Update(gameTime);
+        }
+
+        public static void Draw(SpriteBatch spriteBatch)
+        {
+            if (screenStack.Last<Screen>().IsVisible)
+                screenStack.Last<Screen>().Draw(spriteBatch);
+            if (DialogBox.IsVisible)
+                DialogBox.Draw(spriteBatch);
+        }
+
+        private static void popScreen()
+        {
+            screenStack.RemoveAt(screenStack.Count - 1);
+
+            if (screenStack.Count <= 0)
+                Exit = true;
+        }
+
+        public static void SwitchScreen(Screen screen)
+        {
+            screenStack.Clear();
+
+            screenStack.Add(screen);
+        }
+
+        public static void PushScreen(Screen screen)
+        {
+            screenStack.Add(screen);
+        }
+    }
+}

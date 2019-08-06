@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Mars.Classes
+{
+    
+    /// <summary>
+    /// The lobby is literally the main environment of Mars. 
+    /// It is the meet up place for the match making system.
+    /// </summary>
+    public static class Lobby
+    {
+
+    }
+
+}

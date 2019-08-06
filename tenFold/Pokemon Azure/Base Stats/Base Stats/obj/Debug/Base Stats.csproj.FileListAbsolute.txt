@@ -1,0 +1,5 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\Base Stats\bin\Base Stats.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\Base Stats\bin\Base Stats.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\Base Stats\Base Stats\obj\Debug\Base Stats.csprojResolveAssemblyReference.cache
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\Base Stats\Base Stats\obj\Debug\Base Stats.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure\Base Stats\Base Stats\obj\Debug\Base Stats.pdb

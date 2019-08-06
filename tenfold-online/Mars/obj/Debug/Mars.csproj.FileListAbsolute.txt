@@ -1,0 +1,8 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mars\bin\Debug\Mars.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mars\bin\Debug\Mars.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mars\bin\Debug\Phoenix.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mars\bin\Debug\Structures.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mars\bin\Debug\Phoenix.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mars\bin\Debug\Structures.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mars\obj\Debug\Mars.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\Mars\obj\Debug\Mars.pdb

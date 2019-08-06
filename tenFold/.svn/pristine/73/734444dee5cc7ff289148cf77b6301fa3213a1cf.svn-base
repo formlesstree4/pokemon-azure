@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework.Input;
+using PokeEngine.Menu;
+using PokeEngine.Screens;
+
+namespace PokeEngine.Input
+{
+    static class InputHandler
+    {
+        private static int coolDownMax = 10;
+        private static int coolDown = 0;
+        private static bool isCooling = false;
+
+        public static bool WasKeyPressed(KeyboardState keyState, Keys key, int newCoolMax)
+        {
+            bool check = false;
+
+            if (!isCooling)
+            {
+                if (keyState.IsKeyDown(key))
+                {
+                    check = true;
+                    coolDownMax = newCoolMax;
+                    coolDown = coolDownMax;
+                }
+            }
+
+            return check;
+        }
+
+        public static void UpdateCooling()
+        {
+            if (isCooling)
+            {
+                if (coolDown > 0)
+                    coolDown--;
+                else
+                    isCooling = false;
+            }
+        }
+
+        public static bool IsCooling() { return isCooling; }
+
+        public static void ResetCool() { coolDown = 0; isCooling = false; }
+
+    }
+}

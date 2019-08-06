@@ -1,0 +1,19 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\lua51.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\LuaInterface.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\Content\aansa.xnb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\Content\font.xnb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\Content\smallFont.xnb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\Content\Effect.xnb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\Content\debug_question_tile.xnb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\raw movelist code.txt
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\MoveListParse.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\MoveListParse.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\PokeEngine.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\Pokemon Base Stats Editor.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\Items.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\PokeEngine.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\Pokemon Base Stats Editor.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\bin\Debug\Items.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\obj\x86\Debug\MoveListParse.csprojResolveAssemblyReference.cache
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\obj\x86\Debug\MoveListParse.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenFold\Pokemon Azure Branch\MoveListParse\obj\x86\Debug\MoveListParse.pdb

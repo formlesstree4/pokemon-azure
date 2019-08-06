@@ -1,0 +1,1048 @@
+﻿using System;
+using System.Linq;
+using System.Text;
+using System.Collections.Generic;
+using Generic;
+
+namespace Mercury
+{
+    public static class CONSTANTS
+    {
+
+        /// <summary>
+        /// This is the header for all login requests
+        /// </summary>
+        public const byte LoginHeader = 0;
+
+        /// <summary>
+        /// This is the header for all search requests.
+        /// </summary>
+        public const byte SearchRequestHeader = 1;
+
+        /// <summary>
+        /// This is the header for all search results.
+        /// </summary>
+        public const byte SearchResultsHeader = 2;
+
+        /// <summary>
+        /// This is the header for all uploads.
+        /// </summary>
+        public const byte UploadHeader = 3;
+
+        /// <summary>
+        /// This is the header for all server responses.
+        /// </summary>
+        public const byte ResponseHeader = 4;
+
+        /// <summary>
+        /// This is the header for all check requests.
+        /// </summary>
+        public const byte RequestHeader = 5;
+
+        /// <summary>
+        /// This is the header for all additional results request.
+        /// </summary>
+        public const byte AdditionalSearchHeader = 6;
+
+        /// <summary>
+        /// This is the header for a SearchPokemon.
+        /// </summary>
+        public const byte SearchPokemonHeader = 7;
+
+        /// <summary>
+        /// This is the requirements header.
+        /// </summary>
+        public const byte RequirementsHeader = 8;
+
+        /// <summary>
+        /// This is the trade header.
+        /// </summary>
+        public const byte TradeHeader = 9;
+
+        /// <summary>
+        /// This is the maximum number of search results allowed to go out.
+        /// </summary>
+        public const int MaxResults = 5;
+
+    }
+}
+
+namespace Generic
+{
+
+    #region Interface
+
+    interface IStruct
+    {
+        /// <summary>
+        ///  This will initialize the Structure using the byte array.
+        /// </summary>
+        /// <param name="data">The byte array.</param>
+        void Initialize(byte[] data);
+        /// <summary>
+        /// This will convert the structure to a byte array.
+        /// </summary>
+        /// <returns></returns>
+        byte[] ToByteArray();
+    }
+
+    #endregion
+
+}
+
+namespace Mercury.Classes
+{
+
+    #region Enumerations
+
+    /// <summary>
+    /// Various server responses.
+    /// </summary>
+    public enum Responses 
+    { 
+        NoPokemon, 
+        OldPokemon, 
+        NewPokemon, 
+        LoginGood, 
+        LoginBounced, 
+        UploadBounced, 
+        UploadGood, 
+        Connected, 
+        Error 
+    }
+
+    /// <summary>
+    /// Various client requests.
+    /// </summary>
+    public enum Requests 
+    { 
+
+        /// <summary>
+        /// This has the server do a check to see if the client has anything waiting.
+        /// </summary>
+        Check, 
+
+        /// <summary>
+        /// This has the server send back a pokemon.
+        /// </summary>
+        GetPokemon 
+
+    }
+
+    /// <summary>
+    /// The different genders of a Pokemon.
+    /// </summary>
+    public enum Gender { Male = 0, Female = 1, Any = 2, None = 3 }
+
+    #endregion
+
+    #region Searching
+
+    public class SearchRequest : IStruct
+    {
+
+        public short NationalID { get; set; }
+        public Gender Gender { get; set; }
+        public byte MinLevel { get; set; }
+        public byte MaxLevel { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+
+            // Make sure this is in fact
+            // a valid array for the Search
+            // Request structure
+            if (!data[0].Equals(CONSTANTS.SearchRequestHeader)) return;
+            // So, now that that's done...
+            // Let's start breaking things down
+            NationalID = BitConverter.ToInt16(data, 1);
+            Gender = (Gender)data[3];
+            MinLevel = data[4];
+            MaxLevel = data[5];
+        }
+
+        public byte[] ToByteArray()
+        {
+            var idArr = BitConverter.GetBytes(NationalID);
+            return new[] { CONSTANTS.SearchRequestHeader, idArr[0], idArr[1], (byte)Gender, MinLevel, MaxLevel };
+        }
+
+    }
+    public class SearchResults : IStruct
+    {
+
+        public Guid ID { get; set; }
+        public SearchPkm[] Pokemon { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+
+            // Check
+            if (!data[0].Equals(CONSTANTS.SearchResultsHeader)) return;
+
+            // The next byte tells us how many pokemon there are; it should not
+            // be greater than CONSTANTS.MaxResults
+
+            // Convert the fucker to a list<byte>
+            var dataList = new List<byte>(data);
+            var sentpkmn = dataList[1];
+
+            // Remove
+            dataList.RemoveRange(0, 2);
+
+            // Okay, get the GUID array.
+            ID = new Guid(dataList.GetRange(0, 16).ToArray());
+            dataList.RemoveRange(0, 16);
+
+            Pokemon = new SearchPkm[sentpkmn];
+
+            // Okay, now we can loop until all the data is gone
+            for (int i = 0; i < sentpkmn; i++)
+            {
+                
+                // Grab the current range
+                var currentPkmn = dataList.GetRange(0, 27);
+
+                // Remove the range
+                dataList.RemoveRange(0, 27);
+
+                // Initialize
+                var searchPokemon = new SearchPkm();
+                searchPokemon.Initialize(currentPkmn.ToArray());
+
+                // Set
+                Pokemon[i] = searchPokemon;
+
+            }
+            
+
+        }
+
+        public byte[] ToByteArray()
+        {
+
+            var returnList = new List<byte>
+                                 {CONSTANTS.SearchResultsHeader, (byte) Pokemon.Count()};
+
+            // Add the initial stuff
+            returnList.AddRange(ID.ToByteArray());
+
+            // Add all the pokemon
+            foreach (var pkmn in Pokemon)
+                returnList.AddRange(pkmn.ToByteArray());
+
+            // Give back an array
+            return returnList.ToArray();
+
+        }
+
+    }
+    public class SearchPkm : IStruct
+    {
+
+        /// <summary>
+        /// This is the unique ID code given to this Pokemon for
+        /// tracking purposes by Mercury.
+        /// </summary>
+        public Guid ID { get; set; }
+
+        /// <summary>
+        /// This is the national ID of the Pokemon.
+        /// </summary>
+        public short NationalID { get; set; }
+
+        /// <summary>
+        /// This is the Gender of the Pokemon.
+        /// </summary>
+        public Gender Gender { get; set; }
+
+        /// <summary>
+        /// This is the level of the Pokemon.
+        /// </summary>
+        public byte Level { get; set; }
+
+        /// <summary>
+        /// These are the requirements to get the Pokemon.
+        /// </summary>
+        public Requirements Requirements { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+            
+            // The first byte should be the header
+            if (!data[0].Equals(CONSTANTS.SearchPokemonHeader)) return;
+
+            // Okay, convert to a list
+            var dataList = new List<byte>(data);
+            
+            // remove the first byte, because fuck it :3
+            dataList.RemoveAt(0); // Just the checker anyways.
+
+            // Okay, GUID first
+            ID = new Guid(dataList.GetRange(0, 16).ToArray());
+
+            // remove the guid portion now.
+            dataList.RemoveRange(0, 16);
+
+            // Okay, now the next 2 bytes are the national id
+            NationalID = BitConverter.ToInt16(dataList.GetRange(0, 2).ToArray(), 0);
+
+            // remove
+            dataList.RemoveRange(0, 2);
+
+            // Gender
+            Gender = (Gender)dataList[0];
+
+            // remove!!!
+            dataList.RemoveAt(0);
+
+            // level!!
+            Level = dataList[0];
+            dataList.RemoveAt(0);
+
+            // The rest of the data is for requirements
+            Requirements = new Requirements();
+            Requirements.Initialize(dataList.ToArray());
+
+        }
+
+        public byte[] ToByteArray()
+        {
+
+            var returnList = new List<byte> {CONSTANTS.SearchPokemonHeader};
+
+            returnList.AddRange(ID.ToByteArray());
+            returnList.AddRange(BitConverter.GetBytes(NationalID));
+            returnList.Add((byte)Gender);
+            returnList.Add(Level);
+            returnList.AddRange(Requirements.ToByteArray());
+
+            return returnList.ToArray();
+            
+        }
+
+    }
+    public class AdditionalResults : IStruct
+    {
+
+        public Guid SearchID { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+            if (!data[0].Equals(CONSTANTS.AdditionalSearchHeader)) return;
+
+            var guidArr = new byte[16];
+            Array.ConstrainedCopy(data, 1, guidArr, 0, 16);
+            SearchID = new Guid(guidArr);
+
+        }
+
+        public byte[] ToByteArray()
+        {
+            var returnArr = new byte[17];
+            returnArr[0] = CONSTANTS.AdditionalSearchHeader;
+            var guidArr = SearchID.ToByteArray();
+            Array.ConstrainedCopy(guidArr, 0, returnArr, 1, 16);
+            return returnArr;
+        }
+
+    }
+
+    #endregion
+
+    #region Uploading and Trading
+
+    public class Pokemon : IStruct
+    {
+
+        /// <summary>
+        /// This is the unique ID code given to this Pokemon for
+        /// tracking purposes by Mercury.
+        /// </summary>
+        public Guid ID { get; set; }
+
+        /// <summary>
+        /// This is the national ID of the Pokemon.
+        /// </summary>
+        public short NationalID { get; set; }
+
+        /// <summary>
+        /// This is the Gender of the Pokemon.
+        /// </summary>
+        public Gender Gender { get; set; }
+
+        /// <summary>
+        /// This is the level of the Pokemon.
+        /// </summary>
+        public byte Level { get; set; }
+
+        /// <summary>
+        /// These are the requirements to successfully get a pokemon.
+        /// </summary>
+        public Requirements Requirements { get; set; }
+
+        /// <summary>
+        /// A simple binary blob that contains the actual pokemon data
+        /// </summary>
+        public byte[] Blob { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+
+            // No more crying for adam!
+            var dataArr = new List<byte>(data);
+
+            // Guid
+            ID = new Guid(dataArr.GetRange(0, 16).ToArray());
+            dataArr.RemoveRange(0, 16);
+
+            // NatID
+            NationalID = BitConverter.ToInt16(dataArr.GetRange(0, 2).ToArray(), 0);
+            dataArr.RemoveRange(0, 2);
+
+            // Gender
+            Gender = (Gender)dataArr[0];
+            dataArr.RemoveAt(0);
+
+            // Level
+            Level = dataArr[0];
+            dataArr.RemoveAt(0);
+
+            // Requirements
+            Requirements = new Requirements();
+            Requirements.Initialize(dataArr.GetRange(0, 6).ToArray());
+            dataArr.RemoveRange(0, 6);
+
+            // Okay, all that's left is the blob!
+            Blob = dataArr.ToArray();
+
+        }
+
+        public byte[] ToByteArray()
+        {
+
+            var dataList = new List<byte>();
+
+            dataList.AddRange(ID.ToByteArray());
+            dataList.AddRange(BitConverter.GetBytes(NationalID));
+            dataList.Add((byte)Gender);
+            dataList.Add(Level);
+            dataList.AddRange(Requirements.ToByteArray());
+            dataList.AddRange(Blob);
+
+            return dataList.ToArray();
+
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}, Level {1}", NationalID, Level);
+        }
+
+    }
+    public class Requirements : IStruct
+    {
+
+        /// <summary>
+        /// This is the Pokedex Number of the Pokemon
+        /// wanted in return.
+        /// </summary>
+        public short NationalID { get; set; }
+
+        /// <summary>
+        /// This is the lowest level in the range that can
+        /// be accepted.
+        /// </summary>
+        public byte MinLevel { get; set; }
+
+        /// <summary>
+        /// This is the highest level in the range that can
+        /// be accepted.
+        /// </summary>
+        public byte MaxLevel { get; set; }
+
+        /// <summary>
+        /// This is the gender that is required.
+        /// </summary>
+        public Gender Gender { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+            
+            // First byte!
+            if (!data[0].Equals(CONSTANTS.RequirementsHeader)) return;
+
+            // Derp
+            var dataList = new List<byte>(data);
+            dataList.RemoveAt(0);
+
+            NationalID = BitConverter.ToInt16(dataList.GetRange(0, 2).ToArray(), 0);
+            dataList.RemoveRange(0, 2);
+
+            MinLevel = dataList[0];
+            dataList.RemoveAt(0);
+
+            MaxLevel = dataList[0];
+            dataList.RemoveAt(0);
+
+            Gender = (Gender)dataList[0];
+
+        }
+
+        public byte[] ToByteArray()
+        {
+
+            var dataList = new List<byte> {CONSTANTS.RequirementsHeader};
+            dataList.AddRange(BitConverter.GetBytes(NationalID));
+            dataList.Add(MinLevel);
+            dataList.Add(MaxLevel);
+            dataList.Add((byte)Gender);
+
+            return dataList.ToArray();
+
+            //// Define our arrays
+            //var returnArr = new byte[6];
+            //var idArr = BitConverter.GetBytes(NationalID);
+
+            //// Start copying data
+            //returnArr[0] = CONSTANTS.RequirementsHeader;                
+            //Array.ConstrainedCopy(idArr, 0, returnArr, 1, idArr.Length);
+            //returnArr[3] = MinLevel;
+            //returnArr[4] = MaxLevel;
+            //returnArr[5] = (byte) Gender;
+
+            //// Finished
+            //return returnArr;
+        }
+
+    }
+    public class Upload : IStruct
+    {
+
+        public Pokemon Pokemon { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+
+            // Do that damn check
+            if (!data[0].Equals(CONSTANTS.UploadHeader)) return;
+
+            // data list
+            var dataList = new List<byte>(data);
+
+            // remove the first one because idgaf!
+            dataList.RemoveAt(0);
+
+            // pokemon
+            Pokemon = new Pokemon();
+            Pokemon.Initialize(dataList.ToArray());
+
+        }
+
+        public byte[] ToByteArray()
+        {
+
+            var dataList = new List<byte> {CONSTANTS.UploadHeader};
+            dataList.AddRange(Pokemon.ToByteArray());
+            return dataList.ToArray();
+
+            //var returnArray = new[] { CONSTANTS.UploadHeader };
+            //var pkmnArray = Pokemon.ToByteArray();
+            //Array.Resize(ref returnArray, pkmnArray.Count() + 1);
+            //Array.ConstrainedCopy(pkmnArray, 0, returnArray, 1, pkmnArray.Count());
+            //return returnArray;
+
+        }
+
+    }
+    public class Trade : IStruct
+    {
+
+        /// <summary>
+        /// The Guid of the Pokemon to receive.
+        /// </summary>
+        public Guid ID { get; set; }
+
+        /// <summary>
+        /// This is the pokemon being uploaded in its' place.
+        /// </summary>
+        public Pokemon Pokemon { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+            // Check the header
+            if (!data[0].Equals(CONSTANTS.TradeHeader)) return;
+
+            // Now list
+            var dataList = new List<byte>(data);
+            dataList.RemoveAt(0);
+
+            // set
+            ID = new Guid(dataList.GetRange(0, 16).ToArray());
+            dataList.RemoveRange(0, 16);
+
+            // set again
+            Pokemon = new Pokemon();
+            Pokemon.Initialize(dataList.ToArray());
+
+        }
+
+        public byte[] ToByteArray()
+        {
+
+            var dataList = new List<byte> {CONSTANTS.TradeHeader};
+            dataList.AddRange(ID.ToByteArray());
+            dataList.AddRange(Pokemon.ToByteArray());
+            return dataList.ToArray();
+
+            //// Here's our return array
+            //var returnArr = new [] {CONSTANTS.TradeHeader};
+
+            //// Get our other arrays
+            //var guidArr = ID.ToByteArray();
+            //var pokeArr = Pokemon.ToByteArray();
+
+            //// Resize
+            //Array.Resize(ref returnArr, guidArr.Length + pokeArr.Length + returnArr.Length);
+
+            //// Now copy shit over.
+            //Array.ConstrainedCopy(guidArr, 0, returnArr, 1, guidArr.Length);
+            //Array.ConstrainedCopy(pokeArr, 0, returnArr, 17, pokeArr.Length);
+
+            //// done
+            //return returnArr;
+
+        }
+    }
+
+    #endregion
+
+    #region Request-Response
+
+    public class Request : IStruct
+    {
+
+        public Requests ClientRequest { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+            if (data[0].Equals(CONSTANTS.RequestHeader)) ClientRequest = (Requests)data[1];
+        }
+
+        public byte[] ToByteArray()
+        {
+            return new[] { CONSTANTS.RequestHeader, (byte)ClientRequest };
+        }
+
+    }
+    public class Response : IStruct
+    {
+
+        public Responses Resp { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+            // We need to make sure that this is a proper
+            // Response structure which is just checking
+            // the first byte for a 2.
+            if (data[0].Equals(CONSTANTS.ResponseHeader))
+                Resp = (Responses)data[1];
+        }
+
+        public byte[] ToByteArray()
+        {
+            // Create and return the byte array
+            return new[] { CONSTANTS.ResponseHeader, (byte)Resp };
+        }
+
+    }
+    public class Login : IStruct
+    {
+
+        public Guid ID { get; set; }
+        public string Password { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+
+            // The first byte is garbage really
+            // but it should be checked to make sure
+            // this really is a login structure.
+            if (!data[0].Equals(CONSTANTS.LoginHeader)) return;
+            // Okay, this really is a login byte array
+            // or is masquerading as one. Either way,
+            // let's go about processing it.
+
+            // Create the GUID & Pass array
+            var guidArr = new byte[16];
+            var passArr = new byte[data.Length - (guidArr.Length + 1)];
+
+            // Copy the data over.
+            Array.ConstrainedCopy(data, 1, guidArr, 0, 16);
+            Array.ConstrainedCopy(data, 17, passArr, 0, passArr.Length);
+
+            // Set the data.
+            ID = new Guid(guidArr);
+            Password = Encoding.UTF8.GetString(passArr);
+
+        }
+
+        public byte[] ToByteArray()
+        {
+
+            // list & header
+            var byteList = new List<byte> {CONSTANTS.LoginHeader};
+
+            // so add the guid
+            byteList.AddRange(ID.ToByteArray());
+            
+            //convert the password to bytes
+            var passBytes = Encoding.UTF8.GetBytes(Password);
+            
+            // add
+            byteList.AddRange(passBytes);
+
+            // return
+            return byteList.ToArray();
+            
+        }
+
+    }
+
+    #endregion
+
+}
+
+namespace Mars
+{
+
+    /// <summary>
+    /// global list of constants for mars.
+    /// </summary>
+    public static class Constants
+    {
+        public const byte LoginHeader = 0;
+        public const byte RegisterHeader = 1;
+    }
+
+}
+
+namespace Mars.Classes
+{
+
+    #region Enumeration
+
+    public enum Actions
+    {
+
+        /// <summary>
+        /// A user is kicked from a room/lobby.
+        /// </summary>
+        KickUser,
+
+        /// <summary>
+        /// A user is banned from a room.
+        /// A user cannot be banned from the lobby.
+        /// </summary>
+        BanUser,
+
+        /// <summary>
+        /// A user is server-banned. The username
+        /// will be flagged.
+        /// </summary>
+        ServerBan,
+
+        /// <summary>
+        /// Removes a server ban on a username.
+        /// </summary>
+        RemoveServerBan,
+
+        /// <summary>
+        /// Gives the user permission to speak.
+        /// </summary>
+        VoiceUser,
+
+        /// <summary>
+        /// Removes a users permission to speak.
+        /// </summary>
+        DeVoiceUser,
+
+        /// <summary>
+        /// Gives a user operator powers in a room/lobby.
+        /// </summary>
+        OpUser,
+
+        /// <summary>
+        /// Removes a users operator powers.
+        /// </summary>
+        DeOpUser
+
+    }
+
+    public enum Rank
+    {
+
+        /// <summary>
+        /// The lowest level; no voice.
+        /// </summary>
+        NoVoice,
+
+        /// <summary>
+        /// The middle level; voice.
+        /// </summary>
+        Voice,
+
+        /// <summary>
+        /// The 2nd highest level, operator
+        /// </summary>
+        Ops,
+
+        /// <summary>
+        /// The highest level, super op.
+        /// </summary>
+        SuperOp
+
+    }
+
+    #endregion
+
+    #region Login and Registration
+
+    /// <summary>
+    /// This structure is used for logging in to Mars.
+    /// </summary>
+    public class Login : IStruct
+    {
+
+        /// <summary>
+        /// The username of the person logging in.
+        /// </summary>
+        public string Username { get; set; }
+
+        /// <summary>
+        /// The password of the person logging in.
+        /// </summary>
+        public string Password { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+
+            // convert to list
+            var list = new List<byte>(data);
+
+            // check the starting
+            if(list[0].Equals(Constants.LoginHeader))
+            {
+                
+                // remove it
+                list.RemoveAt(0);
+
+                // next byte is how long the username is
+                var usernameLength = list[0];
+
+                // remove it
+                list.RemoveAt(0);
+
+                // Grab the first 20 characters
+                var usernameBytes = list.GetRange(0, usernameLength).ToArray();
+                Username = Encoding.UTF8.GetString(usernameBytes);
+
+                // remove
+                list.RemoveRange(0, usernameLength);
+
+                // the rest should be the password
+                Password = Encoding.UTF8.GetString(list.ToArray());
+
+            }
+
+        }
+
+        public byte[] ToByteArray()
+        {
+            
+            // okay, data list
+            var list = new List<byte>(Constants.LoginHeader);
+
+            // quick check
+            if(Username.Length > Byte.MaxValue)
+                throw new ArgumentException("Username is too long!");
+
+            // next byte is how long the username is.
+            list.Add((byte)Username.Length);
+
+            // add the username in bytes
+            list.AddRange(Encoding.UTF8.GetBytes(Username));
+
+            // add the password
+            list.AddRange(Encoding.UTF8.GetBytes(Password));
+
+            // give it back
+            return list.ToArray();
+
+        }
+    }
+
+    /// <summary>
+    /// This structure is used for Registering on Mars.
+    /// </summary>
+    public class Register : IStruct
+    {
+
+        /// <summary>
+        /// The username of the person registering.
+        /// </summary>
+        public string Username { get; set; }
+
+        /// <summary>
+        /// The password of the person registering.
+        /// </summary>
+        public string Password { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+
+            // convert to list
+            var list = new List<byte>(data);
+
+            // check the starting
+            if (list[0].Equals(Constants.RegisterHeader))
+            {
+
+                // remove it
+                list.RemoveAt(0);
+
+                // next byte is how long the username is
+                var usernameLength = list[0];
+
+                // remove it
+                list.RemoveAt(0);
+
+                // Grab the first 20 characters
+                var usernameBytes = list.GetRange(0, usernameLength).ToArray();
+                Username = Encoding.UTF8.GetString(usernameBytes);
+
+                // remove
+                list.RemoveRange(0, usernameLength);
+
+                // the rest should be the password
+                Password = Encoding.UTF8.GetString(list.ToArray());
+
+            }
+
+        }
+
+        public byte[] ToByteArray()
+        {
+
+            // okay, data list
+            var list = new List<byte>(Constants.RegisterHeader);
+
+            // quick check
+            if (Username.Length > Byte.MaxValue)
+                throw new ArgumentException("Username is too long!");
+
+            // next byte is how long the username is.
+            list.Add((byte)Username.Length);
+
+            // add the username in bytes
+            list.AddRange(Encoding.UTF8.GetBytes(Username));
+
+            // add the password
+            list.AddRange(Encoding.UTF8.GetBytes(Password));
+
+            // give it back
+            return list.ToArray();
+
+        }
+    }
+
+    #endregion
+
+    #region Room Creation, Modification and Messaging
+
+    public class CreateRoom : IStruct
+    {
+
+        /// <summary>
+        /// The name of the room to create.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// the owner of the room.
+        /// </summary>
+        public string Owner { get; set; }
+
+        /// <summary>
+        /// A brief description of the room.
+        /// </summary>
+        public string Description { get; set; }
+
+
+        public void Initialize(byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] ToByteArray()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ModifyRoom : IStruct
+    {
+
+        public void Initialize(byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] ToByteArray()
+        {
+            throw new NotImplementedException();
+        }
+
+    }
+
+    #endregion
+
+    #region Administration
+
+    public class Action : IStruct
+    {
+
+        /// <summary>
+        /// The action to execute.
+        /// </summary>
+        public Actions SelectedAction { get; set; }
+
+        /// <summary>
+        /// The person sending the action.
+        /// </summary>
+        public string Sender { get; set; }
+
+        /// <summary>
+        /// The user affected by the action.
+        /// </summary>
+        public string User { get; set; }
+
+        /// <summary>
+        /// Optional: The room where the action is taking place.
+        /// </summary>
+        public string Room { get; set; }
+
+        public void Initialize(byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] ToByteArray()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    #endregion
+
+}

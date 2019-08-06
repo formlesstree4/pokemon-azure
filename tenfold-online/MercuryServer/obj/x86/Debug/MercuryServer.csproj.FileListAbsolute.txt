@@ -1,0 +1,14 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\bin\Debug\Database\DB.sdf
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\bin\Debug\MercuryServer.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\bin\Debug\MercuryServer.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\bin\Debug\Mercury.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\bin\Debug\Phoenix.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\bin\Debug\Structures.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\bin\Debug\Mercury.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\bin\Debug\Phoenix.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\bin\Debug\Structures.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\obj\x86\Debug\MercuryServer.Form1.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\obj\x86\Debug\MercuryServer.Properties.Resources.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\obj\x86\Debug\MercuryServer.csproj.GenerateResource.Cache
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\obj\x86\Debug\MercuryServer.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercuryServer\obj\x86\Debug\MercuryServer.pdb

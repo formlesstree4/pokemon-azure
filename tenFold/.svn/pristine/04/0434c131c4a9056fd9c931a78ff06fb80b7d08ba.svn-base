@@ -1,0 +1,101 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using PokeEngine.Menu;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+
+namespace PokeEngine.Screens
+{
+    class OptionScreen : Screen
+    {
+
+        private const float OPTIONSMENU_PADDING = 5f;
+        private const float KEYCONFIGMENU_PADDING = 1f;
+        private Vector2 OPTIONSMENU_POS = new Vector2(5, 5);
+        private Vector2 KEYCONFIGMENU_POS = new Vector2(15, 15);
+
+        private MenuWindow optionsMenu, keyconfigMenu;
+        private List<string> optionsOptionList, keyconfigOptionList;
+        
+
+        public OptionScreen(GraphicsDeviceManager g, ContentManager c, SpriteFont f)
+            : base(g, c, f)
+        {
+            optionsOptionList = new List<string>();
+            keyconfigOptionList = new List<string>();
+
+            populateOptionLists();
+
+            optionsMenu = new MenuWindow(OPTIONSMENU_POS, optionsOptionList, OPTIONSMENU_PADDING);
+            keyconfigMenu = new MenuWindow(KEYCONFIGMENU_POS, keyconfigOptionList, KEYCONFIGMENU_PADDING);
+
+        }
+
+        public new void HandleInput(GamePadState gamePadState, KeyboardState keyboardState, MouseState mouseState)
+        {
+            base.HandleInput(gamePadState, keyboardState, mouseState);
+
+
+
+        }
+
+        private void populateOptionLists()
+        {
+
+            //  populate optionsOptionList
+            {
+                string textspeed = "Text Speed\t";
+                string battlescene = ScreenHandler.GameOptions.BattleScene ? "Animate" : "Don't Animate";
+                string battlestyle = ScreenHandler.GameOptions.BattleStyle ? "Shift" : "Set";
+                string sound = ScreenHandler.GameOptions.Sound ? "On" : "Off";
+                string keyconfig = "Key Config";
+                string frame = ScreenHandler.GameOptions.Frame.ToString();
+                string cancel = "Cancel";
+
+                switch (ScreenHandler.GameOptions.TextSpeed)
+                {
+                    case 0: textspeed += "Slow"; break;
+                    case 1: textspeed += "Medium"; break;
+                    case 2: textspeed += "Fast"; break;
+                    default: textspeed += "oh god an error what the fuck"; break;
+                }
+
+                optionsOptionList.Add(textspeed);
+                optionsOptionList.Add(battlescene);
+                optionsOptionList.Add(battlestyle);
+                optionsOptionList.Add(sound);
+                optionsOptionList.Add(keyconfig);
+                optionsOptionList.Add(frame);
+                optionsOptionList.Add(cancel);
+            }
+
+            //  populate keyconfigOptionsList
+            {
+
+                keyconfigOptionList.Add(String.Format("Menu: UP = {0}", Input.KeyBind.KeyList.MENU_UP.ToString()));
+                keyconfigOptionList.Add(String.Format("Menu: DOWN = {0}", Input.KeyBind.KeyList.MENU_DOWN.ToString()));
+                keyconfigOptionList.Add(String.Format("Menu: LEFT = {0}", Input.KeyBind.KeyList.MENU_LEFT.ToString()));
+                keyconfigOptionList.Add(String.Format("Menu: RIGHT = {0}", Input.KeyBind.KeyList.MENU_RIGHT.ToString()));
+                keyconfigOptionList.Add(String.Format("Menu: SELECT = {0}", Input.KeyBind.KeyList.MENU_SELECT.ToString()));
+                keyconfigOptionList.Add(String.Format("Menu: BACK = {0}", Input.KeyBind.KeyList.MENU_BACK.ToString()));
+                keyconfigOptionList.Add(String.Format("OVERWORLD: UP = {0}", Input.KeyBind.KeyList.OVERWORLD_UP.ToString()));
+                keyconfigOptionList.Add(String.Format("OVERWORLD: DOWN = {0}", Input.KeyBind.KeyList.OVERWORLD_DOWN.ToString()));
+                keyconfigOptionList.Add(String.Format("OVERWORLD: LEFT = {0}", Input.KeyBind.KeyList.OVERWORLD_LEFT.ToString()));
+                keyconfigOptionList.Add(String.Format("OVERWORLD: RIGHT = {0}", Input.KeyBind.KeyList.OVERWORLD_RIGHT.ToString()));
+                keyconfigOptionList.Add(String.Format("OVERWORLD: ACTION = {0}", Input.KeyBind.KeyList.OVERWORLD_ACTION.ToString()));
+                keyconfigOptionList.Add(String.Format("OVERWORLD: CANCEL = {0}", Input.KeyBind.KeyList.OVERWORLD_CANCEL.ToString()));
+                keyconfigOptionList.Add(String.Format("OVERWORLD: MENU = {0}", Input.KeyBind.KeyList.OVERWORLD_MENU.ToString()));
+                keyconfigOptionList.Add(String.Format("OVERWORLD: ITEM = {0}", Input.KeyBind.KeyList.OVERWORLD_ITEM.ToString()));
+                keyconfigOptionList.Add("SAVE");
+                keyconfigOptionList.Add("CANCEL");
+
+            }
+
+        }
+
+    }
+}

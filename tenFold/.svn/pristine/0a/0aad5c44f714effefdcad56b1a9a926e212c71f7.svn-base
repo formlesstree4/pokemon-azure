@@ -1,0 +1,97 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework.Input;
+
+namespace PokeEngine.Input
+{
+
+    [Serializable]
+    class KeyConfig
+    {
+        public Keys MENU_UP;
+        public Keys MENU_DOWN;
+        public Keys MENU_LEFT;
+        public Keys MENU_RIGHT;
+        public Keys MENU_SELECT;
+        public Keys MENU_BACK;
+
+        public Keys OVERWORLD_UP;
+        public Keys OVERWORLD_DOWN;
+        public Keys OVERWORLD_LEFT;
+        public Keys OVERWORLD_RIGHT;
+        public Keys OVERWORLD_ACTION;
+        public Keys OVERWORLD_CANCEL;
+        public Keys OVERWORLD_MENU;
+        public Keys OVERWORLD_ITEM;
+
+        public bool IsMouseEnabled;
+
+        public KeyConfig()
+        {
+            MENU_UP = Keys.Up;
+            MENU_DOWN = Keys.Down;
+            MENU_LEFT = Keys.Left;
+            MENU_RIGHT = Keys.Right;
+            MENU_SELECT = Keys.Enter;
+            MENU_BACK = Keys.Back;
+
+            OVERWORLD_UP = Keys.Up;
+            OVERWORLD_DOWN = Keys.Down;
+            OVERWORLD_LEFT = Keys.Left;
+            OVERWORLD_RIGHT = Keys.Right;
+            OVERWORLD_ACTION = Keys.Z;
+            OVERWORLD_CANCEL = Keys.X;
+            OVERWORLD_MENU = Keys.Space;
+            OVERWORLD_ITEM = Keys.LeftControl;
+
+            IsMouseEnabled = true;
+        }
+
+        public byte[] Save()
+        {
+            using (var ms = new System.IO.MemoryStream())
+            {
+                ms.Write(BitConverter.GetBytes((int)MENU_UP), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)MENU_DOWN), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)MENU_LEFT), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)MENU_RIGHT), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)MENU_SELECT), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)MENU_BACK), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)OVERWORLD_UP), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)OVERWORLD_DOWN), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)OVERWORLD_LEFT), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)OVERWORLD_RIGHT), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)OVERWORLD_ACTION), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)OVERWORLD_CANCEL), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)OVERWORLD_MENU), 0, 4);
+                ms.Write(BitConverter.GetBytes((int)OVERWORLD_ITEM), 0, 4);
+                ms.Write(BitConverter.GetBytes(IsMouseEnabled), 0, 1);
+                return ms.ToArray();
+            }
+        }
+        public void Load(byte[] Data)
+        {
+
+            IsMouseEnabled = BitConverter.ToBoolean(Data, 56);
+            Array.Resize<byte>(ref Data, 56);
+            var ints = new List<Int32>();
+            for (int i = 0; i < Data.Length; i+=4)
+            {
+                ints.Add(BitConverter.ToInt32(Data, i));
+            }
+
+            MENU_UP = (Keys)ints[0]; MENU_DOWN = (Keys)ints[1];
+            MENU_LEFT = (Keys)ints[2]; MENU_RIGHT = (Keys)ints[3];
+            MENU_SELECT = (Keys)ints[4]; MENU_BACK = (Keys)ints[5];
+
+            OVERWORLD_UP = (Keys)ints[6]; OVERWORLD_DOWN = (Keys)ints[7];
+            OVERWORLD_LEFT = (Keys)ints[8]; OVERWORLD_RIGHT = (Keys)ints[9];
+            OVERWORLD_ACTION = (Keys)ints[10]; OVERWORLD_CANCEL = (Keys)ints[11];
+            OVERWORLD_MENU = (Keys)ints[12]; OVERWORLD_ITEM = (Keys)ints[13];
+
+        }
+
+    }
+}

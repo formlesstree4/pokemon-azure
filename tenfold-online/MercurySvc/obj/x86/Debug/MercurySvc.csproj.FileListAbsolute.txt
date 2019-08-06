@@ -1,0 +1,15 @@
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\bin\Debug\Database\DB.sdf
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\bin\Debug\MercurySvc.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\bin\Debug\MercurySvc.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\bin\Debug\Mercury.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\bin\Debug\Phoenix.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\bin\Debug\Structures.dll
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\bin\Debug\Mercury.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\bin\Debug\Phoenix.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\bin\Debug\Structures.pdb
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\obj\x86\Debug\MercurySvc.csprojResolveAssemblyReference.cache
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\obj\x86\Debug\MercurySvc.Entry.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\obj\x86\Debug\MercurySvc.ProjectInstaller.resources
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\obj\x86\Debug\MercurySvc.csproj.GenerateResource.Cache
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\obj\x86\Debug\MercurySvc.exe
+C:\Users\Adam\Documents\Visual Studio 2010\Projects\tenfold-online\MercurySvc\obj\x86\Debug\MercurySvc.pdb

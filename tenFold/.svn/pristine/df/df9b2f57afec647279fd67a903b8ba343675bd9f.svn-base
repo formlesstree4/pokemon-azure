@@ -1,0 +1,116 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using PokeEngine.Battle;
+using PokeEngine.Moves;
+using LuaInterface;
+
+namespace PokeEngine.Classes.Mechanics_Classes.Battle
+{
+    class BattleStack
+    {
+        public static PokeBattle battle;
+        public static SortedList<int, BattleEffect> weather, move, item, effect;//Post-battle stacks
+        public static SortedList<int, BattleEffect> triggered;//Effects that require trigger conditions 
+        public static SortedList<int, BattlePosition> positions;
+        private static BattlePosition lastPosition;
+        public static int remainingMoves
+        {
+            get { return positions.Count; }
+        }
+        public static void insertPositions(BattlePosition[] bmoves)
+        {
+            foreach (BattlePosition b in bmoves)
+            {
+                positions.Add(b.priorityIndex, b);//Adds and sorts positions by speed and priority.
+                insertTriggerable(b);//Checks to see if the Pokémon has any triggerable abilities or items.
+            }
+        }
+
+        private static void insertTriggerable(BattlePosition b)
+        {
+            //Searches the Pokémon for any items or abilities that require immediate insertion in the triggerable stack.
+        }
+
+        public static void initializeStacks(PokeBattle currentBattle)
+        {
+            battle = currentBattle;
+            //Gets items and abilities that can be triggered.
+            weather = new SortedList<int, BattleEffect>();
+
+            move = new SortedList<int, BattleEffect>();
+            item = new SortedList<int, BattleEffect>();
+            effect = new SortedList<int, BattleEffect>();
+            triggered = new SortedList<int, BattleEffect>();
+            positions = new SortedList<int, BattlePosition>();
+            
+        }
+        public static void insertTriggerable(BattleEffect e)
+        {
+            if (e.EType == BattleEffect.EffectType.TRIGGERABLE)
+            {
+                triggered.Add(e.speed,e);
+            }
+        }
+        public static BattlePosition popPosition()
+        {
+            positions.Reverse();
+            if (positions.Count > 0)
+            {
+                lastPosition = positions.ElementAt(0).Value;
+                positions.RemoveAt(0);
+                return lastPosition;
+            }
+            return null;
+        }
+        public static void checkState()
+        {
+            if(remainingMoves > 0)
+            {
+                foreach (BattlePosition p in battle.Positions)
+                {
+                    //if (p.pokemon.currentHealth == 0)
+                    //Remove fainted Pokémon
+                }
+            }
+            foreach (BattleEffect e in triggered.Values)
+            {
+                executeEffect(e);
+            }
+            //When a Pokémon makes a move, check to see if an item or effect triggers from the move.
+            //If all moves are done, go through post round cleanup.
+        }
+
+        private static void executeEffect(BattleEffect e)
+        {
+            //Due to the current system, it is indeterminable if PokeBattle or BattleStack should be responsible for
+            //effect and move execution. This may be replaced at a later time.
+        }
+
+        internal void executePostStack()
+        {
+            executeStack(weather);
+            executeStack(move);
+            executeStack(item);
+            executeStack(effect);
+            throw new NotImplementedException();
+        }
+
+        private void executeStack(SortedList<int,BattleEffect> battleEffect)
+        {
+            BattleEffect[] list = battleEffect.Values.ToArray();
+            battleEffect.Clear();
+            foreach (BattleEffect e in list)
+            {
+                executeEffect(e);
+                if (!e.remove)
+                    battleEffect.Add(e.speed,e);
+            }
+
+            //Executes the stack by individually executing each battleEffect.
+            //Each item should be able to know when it is no longer needed by the system,   
+            //either by having a non-legal or non-existant target, or expiring its countdown. 
+        }
+    }
+}
